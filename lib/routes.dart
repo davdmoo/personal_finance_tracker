@@ -4,9 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'database.dart';
 import 'screens/account/account.screen.dart';
 import 'screens/account_group/account_group.screen.dart';
-import 'screens/category/category.screen.dart';
 import 'screens/currency/currency.screen.dart';
+import 'screens/expense_category/expense_category.screen.dart';
 import 'screens/home/home.screen.dart';
+import 'screens/income_category/income_category.screen.dart';
 import 'screens/splash/splash.screen.dart';
 import 'screens/transaction_form/transaction_form.screen.dart';
 
@@ -71,16 +72,29 @@ class TransactionFormRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<CategoryRoute>(path: CategoryRoute.path, name: CategoryRoute.name)
+@TypedGoRoute<ExpenseCategoryRoute>(path: ExpenseCategoryRoute.path, name: ExpenseCategoryRoute.name)
 @immutable
-class CategoryRoute extends GoRouteData {
-  static const path = "/categories", name = "categories";
+class ExpenseCategoryRoute extends GoRouteData {
+  static const path = "/expense-categories", name = "expense-categories";
 
-  const CategoryRoute();
+  const ExpenseCategoryRoute();
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: CategoryScreen());
+    return const NoTransitionPage(child: ExpenseCategoryScreen());
+  }
+}
+
+@TypedGoRoute<IncomeCategoryRoute>(path: IncomeCategoryRoute.path, name: IncomeCategoryRoute.name)
+@immutable
+class IncomeCategoryRoute extends GoRouteData {
+  static const path = "/income-categories", name = "income-categories";
+
+  const IncomeCategoryRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return const NoTransitionPage(child: IncomeCategoryScreen());
   }
 }
 

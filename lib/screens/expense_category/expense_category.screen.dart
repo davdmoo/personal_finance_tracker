@@ -3,24 +3,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../database.dart';
 import '../../logics/expense_category.logic.dart';
-import 'bloc/category_list_bloc.dart';
+import 'bloc/expense_category_list_bloc.dart';
 import 'form/category_form.widget.dart';
 
-class CategoryScreen extends StatelessWidget {
-  const CategoryScreen({super.key});
+class ExpenseCategoryScreen extends StatelessWidget {
+  const ExpenseCategoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CategoryListBloc(context.read<ExpenseCategoryLogic>())..add(CategoryListEvent.started()),
+      create: (context) => ExpenseCategoryListBloc(
+        context.read<ExpenseCategoryLogic>(),
+      )..add(ExpenseCategoryListEvent.started()),
       child: Scaffold(
         appBar: AppBar(title: Text("Categories")),
         body: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          child: BlocBuilder<CategoryListBloc, CategoryListState>(
-            buildWhen: (previous, current) => previous.categories != current.categories,
+          child: BlocBuilder<ExpenseCategoryListBloc, ExpenseCategoryListState>(
+            buildWhen: (previous, current) => previous.expenseCategories != current.expenseCategories,
             builder: (context, state) {
-              final categories = state.categories;
+              final categories = state.expenseCategories;
 
               return ReorderableListView.builder(
                 itemCount: categories.length,
@@ -39,7 +41,7 @@ class CategoryScreen extends StatelessWidget {
                       );
                       if (response == null || !context.mounted) return;
 
-                      context.read<CategoryListBloc>().add(CategoryListEvent.started());
+                      context.read<ExpenseCategoryListBloc>().add(ExpenseCategoryListEvent.started());
                     },
                   );
                 },
@@ -58,7 +60,7 @@ class CategoryScreen extends StatelessWidget {
               );
               if (response == null || !context.mounted) return;
 
-              context.read<CategoryListBloc>().add(CategoryListEvent.started());
+              context.read<ExpenseCategoryListBloc>().add(ExpenseCategoryListEvent.started());
             },
             child: Icon(Icons.add),
           ),
