@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../database.dart';
+import '../../../../logics/currency.logic.dart';
 import 'bloc/currency_form_bloc.dart';
 
 class CurrencyFormDialog extends StatefulWidget {
@@ -38,10 +39,11 @@ class _CurrencyFormDialogState extends State<CurrencyFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final db = context.read<AppDatabase>();
-
     return BlocProvider(
-      create: (context) => CurrencyFormBloc(db: db, currency: widget.currencyToUpdate),
+      create: (context) => CurrencyFormBloc(
+        currencyLogic: context.read<CurrencyLogic>(),
+        currency: widget.currencyToUpdate,
+      ),
       child: BlocListener<CurrencyFormBloc, CurrencyFormState>(
         listenWhen: (previous, current) => previous.savedCurrency != current.savedCurrency,
         listener: (context, state) {

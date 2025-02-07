@@ -25,7 +25,6 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   Future<void> _onStarted(_Started event, Emitter<SplashState> emit) async {
     try {
       emit(state.copyWith(isLoading: true));
-      await Future.delayed(Duration(seconds: 2));
       await db.populateDatabase();
       emit(state.copyWith(appInitSuccessful: true));
     } catch (err) {

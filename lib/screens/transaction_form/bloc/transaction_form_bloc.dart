@@ -1,24 +1,43 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../database.dart';
+import '../../../logics/account.logic.dart';
+import '../../../logics/currency.logic.dart';
+import '../../../logics/expense.logic.dart';
+import '../../../logics/expense_category.logic.dart';
+import '../../../logics/income.logic.dart';
+import '../../../logics/income_category.logic.dart';
+import '../../../logics/transfer.logic.dart';
 
 part 'transaction_form_bloc.freezed.dart';
 part 'transaction_form_event.dart';
 part 'transaction_form_state.dart';
 
 class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormState> {
-  final AppDatabase db;
+  final ExpenseLogic expenseLogic;
+  final IncomeLogic incomeLogic;
+  final TransferLogic transferLogic;
+
+  final AccountLogic accountLogic;
+  final ExpenseCategoryLogic expenseCategoryLogic;
+  final IncomeCategoryLogic incomeCategoryLogic;
+  final CurrencyLogic currencyLogic;
 
   final PopulatedExpense? populatedExpense;
   final PopulatedIncome? populatedIncome;
   final PopulatedTransfer? populatedTransfer;
 
   TransactionFormBloc({
-    required this.db,
+    required this.expenseLogic,
+    required this.incomeLogic,
+    required this.transferLogic,
+    required this.accountLogic,
+    required this.expenseCategoryLogic,
+    required this.incomeCategoryLogic,
+    required this.currencyLogic,
     this.populatedExpense,
     this.populatedIncome,
     this.populatedTransfer,
@@ -37,21 +56,16 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
     try {
       emit(state.copyWith(isLoading: true));
 
-      final selectAccountStatement = (db.select(db.accounts))..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
-      final accounts = await selectAccountStatement.get();
+      final accounts = await accountLogic.findAll();
       emit(state.copyWith(accounts: accounts));
 
-      final selectExpenseCatStatement = (db.select(db.expenseCategories))
-        ..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
-      final expenseCats = await selectExpenseCatStatement.get();
+      final expenseCats = await expenseCategoryLogic.findAll();
       emit(state.copyWith(expenseCategories: expenseCats));
 
-      final selectIncomeCatStatement = (db.select(db.incomeCategories))
-        ..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
-      final incomeCats = await selectIncomeCatStatement.get();
+      final incomeCats = await incomeCategoryLogic.findAll();
       emit(state.copyWith(incomeCategories: incomeCats));
 
-      final currencies = await db.select(db.currencies).get();
+      final currencies = await currencyLogic.findAll();
       emit(state.copyWith(currencies: currencies));
     } catch (err) {
       emit(
@@ -68,33 +82,26 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
 
       final populatedExpense = this.populatedExpense;
       if (populatedExpense == null) {
-        final data = ExpensesCompanion.insert(
-          categoryId: event.category.id,
+        final newExpense = await expenseLogic.create(
           accountId: event.account.id,
-          currencyId: event.currency.id,
           amount: event.amount,
-          note: event.note ?? "",
+          currencyId: event.currency.id,
+          expenseCategoryId: event.category.id,
           transactionDate: event.transactionDate,
+          note: event.note,
         );
-        final newExpense = await db.into(db.expenses).insertReturning(data);
 
         emit(state.copyWith(savedExpense: newExpense));
       } else {
-        final data = ExpensesCompanion(
-          categoryId: drift.Value(event.category.id),
-          accountId: drift.Value(event.account.id),
-          currencyId: drift.Value(event.currency.id),
-          amount: drift.Value(event.amount),
-          note: drift.Value(event.note ?? ""),
-          transactionDate: drift.Value(event.transactionDate),
+        final updatedExpense = await expenseLogic.update(
+          id: populatedExpense.expense.id,
+          accountId: event.account.id,
+          amount: event.amount,
+          currencyId: event.currency.id,
+          expenseCategoryId: event.category.id,
+          transactionDate: event.transactionDate,
+          note: event.note,
         );
-        final query = db.update(db.expenses)..where((tbl) => tbl.id.equals(populatedExpense.expense.id));
-        final result = await query.writeReturning(data);
-
-        final updatedExpense = result.firstOrNull;
-        if (updatedExpense == null) {
-          throw Exception("Expense is missing. It may have been deleted.");
-        }
 
         emit(state.copyWith(savedExpense: updatedExpense));
       }
@@ -113,33 +120,26 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
 
       final populatedIncome = this.populatedIncome;
       if (populatedIncome == null) {
-        final data = IncomesCompanion.insert(
-          categoryId: event.category.id,
+        final newIncome = await incomeLogic.create(
           accountId: event.account.id,
-          currencyId: event.currency.id,
           amount: event.amount,
-          note: event.note ?? "",
+          currencyId: event.currency.id,
+          expenseCategoryId: event.category.id,
           transactionDate: event.transactionDate,
+          note: event.note,
         );
-        final newIncome = await db.into(db.incomes).insertReturning(data);
 
         emit(state.copyWith(savedIncome: newIncome));
       } else {
-        final data = IncomesCompanion(
-          categoryId: drift.Value(event.category.id),
-          accountId: drift.Value(event.account.id),
-          currencyId: drift.Value(event.currency.id),
-          amount: drift.Value(event.amount),
-          note: drift.Value(event.note ?? ""),
-          transactionDate: drift.Value(event.transactionDate),
+        final updatedIncome = await incomeLogic.update(
+          id: populatedIncome.income.id,
+          accountId: event.account.id,
+          amount: event.amount,
+          currencyId: event.currency.id,
+          incomeCategoryId: event.category.id,
+          transactionDate: event.transactionDate,
+          note: event.note,
         );
-        final query = db.update(db.incomes)..where((tbl) => tbl.id.equals(populatedIncome.income.id));
-        final result = await query.writeReturning(data);
-
-        final updatedIncome = result.firstOrNull;
-        if (updatedIncome == null) {
-          throw Exception("Income is missing. It may have been deleted.");
-        }
 
         emit(state.copyWith(savedIncome: updatedIncome));
       }
@@ -158,35 +158,28 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
 
       final populatedTransfer = this.populatedTransfer;
       if (populatedTransfer == null) {
-        final data = TransfersCompanion.insert(
+        final newTransfer = await transferLogic.create(
           accountOrigin: event.accountOrigin.id,
           accountDestination: event.accountDestination.id,
-          currencyId: event.currency.id,
+          currency: event.currency.id,
           amount: event.amount,
-          fee: drift.Value(event.fee),
-          note: event.note ?? "",
+          fee: event.fee,
+          note: event.note,
           transactionDate: event.transactionDate,
         );
-        final newTransfer = await db.into(db.transfers).insertReturning(data);
 
         emit(state.copyWith(savedTransfer: newTransfer));
       } else {
-        final data = TransfersCompanion(
-          accountOrigin: drift.Value(event.accountOrigin.id),
-          accountDestination: drift.Value(event.accountDestination.id),
-          currencyId: drift.Value(event.currency.id),
-          amount: drift.Value(event.amount),
-          fee: drift.Value(event.fee),
-          note: drift.Value(event.note ?? ""),
-          transactionDate: drift.Value(event.transactionDate),
+        final updatedTransfer = await transferLogic.update(
+          id: populatedTransfer.transfer.id,
+          accountOrigin: event.accountOrigin.id,
+          accountDestination: event.accountDestination.id,
+          currency: event.currency.id,
+          amount: event.amount,
+          fee: event.fee,
+          note: event.note,
+          transactionDate: event.transactionDate,
         );
-        final query = db.update(db.transfers)..where((tbl) => tbl.id.equals(populatedTransfer.transfer.id));
-        final result = await query.writeReturning(data);
-
-        final updatedTransfer = result.firstOrNull;
-        if (updatedTransfer == null) {
-          throw Exception("Transfer is missing. It may have been deleted.");
-        }
 
         emit(state.copyWith(savedTransfer: updatedTransfer));
       }

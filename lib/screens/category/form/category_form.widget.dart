@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../database.dart';
+import '../../../logics/expense_category.logic.dart';
 import 'bloc/category_form_bloc.dart';
 
 class CategoryFormDialog extends StatefulWidget {
@@ -44,7 +45,7 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CategoryFormBloc(
-        db: context.read<AppDatabase>(),
+        expenseCategoryLogic: context.read<ExpenseCategoryLogic>(),
         categoryId: widget.categoryToUpdate?.id,
       ),
       child: BlocListener<CategoryFormBloc, CategoryFormState>(

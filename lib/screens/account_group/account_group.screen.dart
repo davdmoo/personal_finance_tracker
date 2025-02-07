@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../database.dart';
+import '../../logics/account_group.logic.dart';
 import 'bloc/account_group_bloc.dart';
 import 'widgets/form/account_group_form.widget.dart';
 
@@ -11,7 +12,7 @@ class AccountGroupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AccountGroupBloc(context.read<AppDatabase>())..add(AccountGroupEvent.started()),
+      create: (context) => AccountGroupBloc(context.read<AccountGroupLogic>())..add(AccountGroupEvent.started()),
       child: Scaffold(
         appBar: AppBar(title: Text("Account Groups")),
         body: BlocBuilder<AccountGroupBloc, AccountGroupState>(

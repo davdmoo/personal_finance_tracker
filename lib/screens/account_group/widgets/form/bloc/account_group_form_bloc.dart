@@ -1,21 +1,20 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../../database.dart';
-import '../../../../../extensions/string.extensions.dart';
+import '../../../../../logics/account_group.logic.dart';
 
 part 'account_group_form_bloc.freezed.dart';
 part 'account_group_form_event.dart';
 part 'account_group_form_state.dart';
 
 class AccountGroupFormBloc extends Bloc<AccountGroupFormEvent, AccountGroupFormState> {
-  final AppDatabase db;
+  final AccountGroupLogic accountGroupLogic;
   final AccountGroup? accountGroup;
 
-  AccountGroupFormBloc({required this.db, this.accountGroup}) : super(_AccountGroupFormState()) {
+  AccountGroupFormBloc({required this.accountGroupLogic, this.accountGroup}) : super(_AccountGroupFormState()) {
     on<AccountGroupFormEvent>(
       (events, emit) async {
         await events.map<FutureOr<void>>(
@@ -34,36 +33,11 @@ class AccountGroupFormBloc extends Bloc<AccountGroupFormEvent, AccountGroupFormS
 
       final accountGroup = this.accountGroup;
       if (accountGroup == null) {
-        final insertedData = await db.transaction<AccountGroup>(
-          () async {
-            // get the latest order from all account groups
-            final selectStatement = (db.select(db.accountGroups))
-              ..orderBy([(t) => drift.OrderingTerm(expression: t.order, mode: drift.OrderingMode.desc)])
-              ..limit(1);
-            final result = await selectStatement.get();
-            final accountGroup = result.firstOrNull;
-
-            final order = accountGroup?.order ?? 0;
-            final data = AccountGroupsCompanion.insert(
-              name: event.name.capitalized.trim(),
-              order: order + 1,
-            );
-            final newAccountGroup = await db.into(db.accountGroups).insertReturning(data);
-
-            return newAccountGroup;
-          },
-        );
+        final insertedData = await accountGroupLogic.create(name: event.name);
 
         emit(state.copyWith(savedAccountGroup: insertedData));
       } else {
-        final data = AccountGroupsCompanion(name: drift.Value(event.name.capitalized.trim()));
-        final query = db.update(db.accountGroups)..where((tbl) => tbl.id.equals(accountGroup.id));
-        final result = await query.writeReturning(data);
-
-        final updatedAccountGroup = result.firstOrNull;
-        if (updatedAccountGroup == null) {
-          throw Exception("Account group is missing. It may have been deleted.");
-        }
+        final updatedAccountGroup = await accountGroupLogic.update(id: accountGroup.id, name: event.name);
 
         emit(state.copyWith(savedAccountGroup: updatedAccountGroup));
       }

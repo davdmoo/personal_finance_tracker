@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../database.dart';
+import '../../logics/expense_category.logic.dart';
 import 'bloc/category_list_bloc.dart';
 import 'form/category_form.widget.dart';
 
@@ -10,10 +11,8 @@ class CategoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final database = context.read<AppDatabase>();
-
     return BlocProvider(
-      create: (context) => CategoryListBloc(db: database)..add(CategoryListEvent.started()),
+      create: (context) => CategoryListBloc(context.read<ExpenseCategoryLogic>())..add(CategoryListEvent.started()),
       child: Scaffold(
         appBar: AppBar(title: Text("Categories")),
         body: Padding(

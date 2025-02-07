@@ -4,15 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../database.dart';
+import '../../../logics/currency.logic.dart';
 
 part 'currency_list_bloc.freezed.dart';
 part 'currency_list_event.dart';
 part 'currency_list_state.dart';
 
 class CurrencyListBloc extends Bloc<CurrencyListEvent, CurrencyListState> {
-  final AppDatabase db;
+  final CurrencyLogic currencyLogic;
 
-  CurrencyListBloc(this.db) : super(_CurrencyListState()) {
+  CurrencyListBloc(this.currencyLogic) : super(_CurrencyListState()) {
     on<CurrencyListEvent>((events, emit) async {
       await events.map<FutureOr<void>>(
         started: (event) async => await _onStarted(event, emit),
@@ -24,7 +25,7 @@ class CurrencyListBloc extends Bloc<CurrencyListEvent, CurrencyListState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      final currencies = await db.select(db.currencies).get();
+      final currencies = await currencyLogic.findAll();
 
       emit(state.copyWith(currencies: currencies));
     } catch (err) {

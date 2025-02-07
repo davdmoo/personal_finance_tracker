@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../database.dart';
+import '../../../../logics/account.logic.dart';
+import '../../../../logics/account_group.logic.dart';
 import 'bloc/account_form_bloc.dart';
 
 class AccountFormWidget extends StatefulWidget {
@@ -37,7 +39,8 @@ class _AccountFormWidgetState extends State<AccountFormWidget> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => AccountFormBloc(
-        db: context.read<AppDatabase>(),
+        accountGroupLogic: context.read<AccountGroupLogic>(),
+        accountLogic: context.read<AccountLogic>(),
         account: widget.accountToUpdate,
       )..add(AccountFormEvent.started()),
       child: MultiBlocListener(
@@ -103,7 +106,9 @@ class _AccountFormWidgetState extends State<AccountFormWidget> {
                                 if (accountToUpdate == null) return;
 
                                 final accountGroups = state.accountGroups;
-                                final selected = accountGroups.firstWhere((group) => group.id == accountToUpdate.id);
+                                final selected = accountGroups.firstWhere(
+                                  (group) => group.id == accountToUpdate.accountGroupId,
+                                );
                                 setState(() {
                                   _selectedAccountGroup = selected;
                                   controller.text = selected.name;

@@ -1,19 +1,19 @@
 import 'dart:async';
 
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../database.dart';
+import '../../../logics/expense_category.logic.dart';
 
 part 'category_list_bloc.freezed.dart';
 part 'category_list_event.dart';
 part 'category_list_state.dart';
 
 class CategoryListBloc extends Bloc<CategoryListEvent, CategoryListState> {
-  final AppDatabase db;
+  final ExpenseCategoryLogic expenseCategoryLogic;
 
-  CategoryListBloc({required this.db}) : super(_CategoryListState()) {
+  CategoryListBloc(this.expenseCategoryLogic) : super(_CategoryListState()) {
     on<CategoryListEvent>((events, emit) async {
       await events.map<FutureOr<void>>(
         started: (value) async => await _onStarted(value, emit),
@@ -25,8 +25,7 @@ class CategoryListBloc extends Bloc<CategoryListEvent, CategoryListState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      final selectStatement = db.select(db.expenseCategories)..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
-      final categories = await selectStatement.get();
+      final categories = await expenseCategoryLogic.findAll();
 
       emit(state.copyWith(categories: categories));
     } catch (err) {

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../database.dart';
+import '../../../../logics/account_group.logic.dart';
 import 'bloc/account_group_form_bloc.dart';
 
 class AccountGroupFormWidget extends StatefulWidget {
@@ -35,7 +36,7 @@ class _AccountGroupFormWidgetState extends State<AccountGroupFormWidget> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => AccountGroupFormBloc(
-        db: context.read<AppDatabase>(),
+        accountGroupLogic: context.read<AccountGroupLogic>(),
         accountGroup: widget.accountGroupToUpdate,
       ),
       child: BlocListener<AccountGroupFormBloc, AccountGroupFormState>(

@@ -47,7 +47,6 @@ class TransactionFormRouteExtra {
   final PopulatedExpense? populatedExpense;
   final PopulatedIncome? populatedIncome;
   final PopulatedTransfer? populatedTransfer;
-
   const TransactionFormRouteExtra({this.populatedExpense, this.populatedIncome, this.populatedTransfer});
 }
 

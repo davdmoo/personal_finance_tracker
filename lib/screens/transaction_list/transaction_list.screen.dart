@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../database.dart';
+import '../../logics/expense.logic.dart';
+import '../../logics/income.logic.dart';
+import '../../logics/transfer.logic.dart';
 import '../../routes.dart';
 import 'bloc/transaction_list_bloc.dart';
 
@@ -18,10 +21,12 @@ class TransactionListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final db = context.read<AppDatabase>();
-
     return BlocProvider(
-      create: (context) => TransactionListBloc(db)..add(TransactionListEvent.started()),
+      create: (context) => TransactionListBloc(
+        expenseLogic: context.read<ExpenseLogic>(),
+        incomeLogic: context.read<IncomeLogic>(),
+        transferLogic: context.read<TransferLogic>(),
+      )..add(TransactionListEvent.started()),
       child: Scaffold(
         appBar: AppBar(title: Text("Transaction List")),
         body: BlocSelector<TransactionListBloc, TransactionListState, _TransactionListSelectorState>(

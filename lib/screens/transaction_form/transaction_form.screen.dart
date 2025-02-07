@@ -3,6 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../database.dart';
+import '../../logics/account.logic.dart';
+import '../../logics/currency.logic.dart';
+import '../../logics/expense.logic.dart';
+import '../../logics/expense_category.logic.dart';
+import '../../logics/income.logic.dart';
+import '../../logics/income_category.logic.dart';
+import '../../logics/transfer.logic.dart';
 import 'bloc/transaction_form_bloc.dart';
 import 'widgets/expense_form.widget.dart';
 import 'widgets/income_form.widget.dart';
@@ -17,14 +24,18 @@ class TransactionFormScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final db = context.read<AppDatabase>();
-
     return BlocProvider(
       create: (context) => TransactionFormBloc(
-        db: db,
         populatedExpense: populatedExpense,
         populatedIncome: populatedIncome,
         populatedTransfer: populatedTransfer,
+        expenseLogic: context.read<ExpenseLogic>(),
+        incomeLogic: context.read<IncomeLogic>(),
+        transferLogic: context.read<TransferLogic>(),
+        accountLogic: context.read<AccountLogic>(),
+        currencyLogic: context.read<CurrencyLogic>(),
+        expenseCategoryLogic: context.read<ExpenseCategoryLogic>(),
+        incomeCategoryLogic: context.read<IncomeCategoryLogic>(),
       )..add(TransactionFormEvent.started()),
       child: MultiBlocListener(
         listeners: [

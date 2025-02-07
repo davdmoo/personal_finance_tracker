@@ -4,15 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../database.dart';
+import '../../../logics/account_group.logic.dart';
 
 part 'account_group_bloc.freezed.dart';
 part 'account_group_event.dart';
 part 'account_group_state.dart';
 
 class AccountGroupBloc extends Bloc<AccountGroupEvent, AccountGroupState> {
-  final AppDatabase db;
+  final AccountGroupLogic accountGroupLogic;
 
-  AccountGroupBloc(this.db) : super(_AccountGroupState()) {
+  AccountGroupBloc(this.accountGroupLogic) : super(_AccountGroupState()) {
     on<AccountGroupEvent>(
       (events, emit) async {
         await events.map<FutureOr<void>>(
@@ -26,7 +27,7 @@ class AccountGroupBloc extends Bloc<AccountGroupEvent, AccountGroupState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      final accountGroups = await db.select(db.accountGroups).get();
+      final accountGroups = await accountGroupLogic.findAll();
 
       emit(state.copyWith(accountGroups: accountGroups));
     } catch (err) {
