@@ -54,16 +54,38 @@ class Accounts extends Table {
   late final DateTimeColumn updatedAt = dateTime().withDefault(currentDateAndTime)();
 }
 
+class PopulatedBudget {
+  final Budget budget;
+  final ExpenseCategory category;
+
+  const PopulatedBudget({required this.budget, required this.category});
+}
+
 class Budgets extends Table {
   late final IntColumn id = integer().autoIncrement()();
-  late final IntColumn categoryId = integer().references(
-    ExpenseCategories,
+  late final IntColumn categoryId = integer()
+      .references(
+        ExpenseCategories,
+        #id,
+        onDelete: KeyAction.cascade,
+        onUpdate: KeyAction.cascade,
+      )
+      .unique()();
+  late final RealColumn amount = real().check(amount.isBiggerThanValue(0.0))();
+  late final DateTimeColumn createdAt = dateTime().withDefault(currentDateAndTime)();
+  late final DateTimeColumn updatedAt = dateTime().withDefault(currentDateAndTime)();
+}
+
+class BudgetAdjustments extends Table {
+  late final IntColumn id = integer().autoIncrement()();
+  late final IntColumn budgetId = integer().references(
+    Budgets,
     #id,
     onDelete: KeyAction.cascade,
     onUpdate: KeyAction.cascade,
   )();
-  late final TextColumn budgetPeriod = text().withLength(min: 1, max: 255)();
-  late final RealColumn limit = real().check(limit.isBiggerThanValue(0.0))();
+  late final RealColumn customAmount = real().check(customAmount.isBiggerThanValue(0.0))();
+  late final DateTimeColumn adjustmentDate = dateTime()();
   late final DateTimeColumn createdAt = dateTime().withDefault(currentDateAndTime)();
   late final DateTimeColumn updatedAt = dateTime().withDefault(currentDateAndTime)();
 }

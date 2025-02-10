@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'database.dart';
 import 'screens/account/account.screen.dart';
 import 'screens/account_group/account_group.screen.dart';
+import 'screens/budget/budget.screen.dart';
 import 'screens/currency/currency.screen.dart';
 import 'screens/expense_category/expense_category.screen.dart';
 import 'screens/home/home.screen.dart';
@@ -134,5 +135,18 @@ class CurrencyRoute extends GoRouteData {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return const NoTransitionPage(child: CurrencyScreen());
+  }
+}
+
+@TypedGoRoute<BudgetRoute>(path: BudgetRoute.path, name: BudgetRoute.name)
+@immutable
+class BudgetRoute extends GoRouteData {
+  static const path = "/budgets", name = "budgets";
+
+  const BudgetRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return const NoTransitionPage(child: BudgetScreen());
   }
 }
