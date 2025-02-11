@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../database.dart';
 import '../../../logics/budget.logic.dart';
+import '../../../models/budget_progress.model.dart';
 
 part 'budget_bloc.freezed.dart';
 part 'budget_event.dart';
