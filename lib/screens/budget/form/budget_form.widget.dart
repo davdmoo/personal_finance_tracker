@@ -2,59 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../database.dart';
-import '../../../../logics/account.logic.dart';
-import '../../../../logics/account_group.logic.dart';
-import 'bloc/account_form_bloc.dart';
+import '../../../database.dart';
+import '../../../logics/budget.logic.dart';
+import '../../../logics/expense_category.logic.dart';
+import 'bloc/budget_form_bloc.dart';
 
-class AccountFormWidget extends StatefulWidget {
-  const AccountFormWidget({super.key, this.accountToUpdate});
+class BudgetFormDialog extends StatefulWidget {
+  const BudgetFormDialog({super.key, this.budget});
 
-  final Account? accountToUpdate;
+  final Budget? budget;
 
   @override
-  State<AccountFormWidget> createState() => _AccountFormWidgetState();
+  State<BudgetFormDialog> createState() => _BudgetFormDialogState();
 }
 
-class _AccountFormWidgetState extends State<AccountFormWidget> {
+class _BudgetFormDialogState extends State<BudgetFormDialog> {
   final _formKey = GlobalKey<FormState>();
 
-  final _nameController = TextEditingController();
-  AccountGroup? _selectedAccountGroup;
+  late final TextEditingController _limitController;
+  ExpenseCategory? _selectedCategory;
 
   @override
   void initState() {
     super.initState();
 
-    _nameController.text = widget.accountToUpdate?.name ?? "";
+    final budget = widget.budget;
+    _limitController = TextEditingController(text: budget?.amount.toInt().toString());
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _limitController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AccountFormBloc(
-        accountGroupLogic: context.read<AccountGroupLogic>(),
-        accountLogic: context.read<AccountLogic>(),
-        account: widget.accountToUpdate,
-      )..add(AccountFormEvent.started()),
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<AccountFormBloc, AccountFormState>(
-            listenWhen: (previous, current) => previous.savedAccount != current.savedAccount,
-            listener: (context, state) {
-              final savedAccount = state.savedAccount;
-              if (savedAccount == null) return;
+      create: (context) => BudgetFormBloc(
+        budget: widget.budget,
+        budgetLogic: context.read<BudgetLogic>(),
+        expenseCategoryLogic: context.read<ExpenseCategoryLogic>(),
+      )..add(BudgetFormEvent.started()),
+      child: BlocListener<BudgetFormBloc, BudgetFormState>(
+        listenWhen: (previous, current) => previous.savedBudget != current.savedBudget,
+        listener: (context, state) {
+          final savedBudget = state.savedBudget;
+          if (savedBudget == null) return;
 
-              context.pop(savedAccount);
-            },
-          ),
-        ],
+          context.pop(savedBudget);
+        },
         child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: 600),
           child: Form(
@@ -63,18 +60,18 @@ class _AccountFormWidgetState extends State<AccountFormWidget> {
               title: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: Text(widget.accountToUpdate == null ? "New Account" : "Update Account")),
+                  Expanded(child: Text(widget.budget == null ? "New Budget" : "Update Budget")),
                   IconButton(onPressed: () => context.pop(), icon: Icon(Icons.close)),
                 ],
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
-                spacing: 8,
                 children: [
                   TextFormField(
-                    controller: _nameController,
+                    controller: _limitController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(labelText: "Name"),
+                    decoration: InputDecoration(labelText: "Amount"),
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "This field is required";
@@ -83,54 +80,55 @@ class _AccountFormWidgetState extends State<AccountFormWidget> {
                       return null;
                     },
                   ),
-                  BlocBuilder<AccountFormBloc, AccountFormState>(
-                    buildWhen: (previous, current) => previous.accountGroups != current.accountGroups,
+                  BlocBuilder<BudgetFormBloc, BudgetFormState>(
+                    buildWhen: (previous, current) => previous.expenseCategories != current.expenseCategories,
                     builder: (context, state) {
-                      final accountGroups = state.accountGroups;
+                      final expenseCategories = state.expenseCategories;
 
                       return StatefulBuilder(
-                        builder: (context, setState) => Autocomplete<AccountGroup>(
+                        builder: (context, setState) => Autocomplete<ExpenseCategory>(
                           displayStringForOption: (option) => option.name,
                           optionsBuilder: (textEditingValue) {
                             final value = textEditingValue.text.toLowerCase();
-                            if (value.isEmpty) return accountGroups;
+                            if (value.isEmpty) return expenseCategories;
 
-                            return accountGroups.where((group) => group.name.toLowerCase().contains(value));
+                            return expenseCategories.where((group) => group.name.toLowerCase().contains(value));
                           },
                           fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                            return BlocListener<AccountFormBloc, AccountFormState>(
-                              listenWhen: (previous, current) => previous.accountGroups != current.accountGroups,
+                            return BlocListener<BudgetFormBloc, BudgetFormState>(
+                              listenWhen: (previous, current) =>
+                                  previous.expenseCategories != current.expenseCategories,
                               listener: (context, state) {
-                                // populate the account group if the user is updating
-                                final accountToUpdate = widget.accountToUpdate;
-                                if (accountToUpdate == null) return;
+                                // populate the budget if the user is updating
+                                final budgetToUpdate = widget.budget;
+                                if (budgetToUpdate == null) return;
 
-                                final accountGroups = state.accountGroups;
-                                final selected = accountGroups.firstWhere(
-                                  (group) => group.id == accountToUpdate.accountGroupId,
+                                final expenseCategories = state.expenseCategories;
+                                final selected = expenseCategories.firstWhere(
+                                  (group) => group.id == budgetToUpdate.categoryId,
                                 );
-                                _selectedAccountGroup = selected;
+                                _selectedCategory = selected;
                                 controller.text = selected.name;
                               },
                               child: TextFormField(
                                 controller: controller,
                                 focusNode: focusNode,
-                                readOnly: _selectedAccountGroup != null,
+                                readOnly: _selectedCategory != null,
                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) return "This field is required";
-                                  if (_selectedAccountGroup == null) return "You have to select a group";
+                                  if (_selectedCategory == null) return "You have to select a category";
 
                                   return null;
                                 },
                                 decoration: InputDecoration(
-                                  label: Text("Account Group"),
-                                  suffixIcon: _selectedAccountGroup != null
+                                  label: Text("Expense Category"),
+                                  suffixIcon: _selectedCategory != null
                                       ? IconButton(
                                           onPressed: () {
                                             controller.clear();
                                             setState(() {
-                                              _selectedAccountGroup = null;
+                                              _selectedCategory = null;
                                             });
                                           },
                                           icon: const Icon(Icons.clear, size: 16),
@@ -154,11 +152,11 @@ class _AccountFormWidgetState extends State<AccountFormWidget> {
                                     shrinkWrap: true,
                                     itemCount: options.length,
                                     itemBuilder: (context, index) {
-                                      final accountGroup = options.elementAt(index);
+                                      final expenseCategory = options.elementAt(index);
 
                                       return ListTile(
-                                        title: Text(accountGroup.name),
-                                        onTap: () => onSelected(accountGroup),
+                                        title: Text(expenseCategory.name),
+                                        onTap: () => onSelected(expenseCategory),
                                       );
                                     },
                                   ),
@@ -168,7 +166,7 @@ class _AccountFormWidgetState extends State<AccountFormWidget> {
                           },
                           onSelected: (option) {
                             setState(() {
-                              _selectedAccountGroup = option;
+                              _selectedCategory = option;
                             });
                           },
                         ),
@@ -178,7 +176,7 @@ class _AccountFormWidgetState extends State<AccountFormWidget> {
                 ],
               ),
               actions: [
-                BlocBuilder<AccountFormBloc, AccountFormState>(
+                BlocBuilder<BudgetFormBloc, BudgetFormState>(
                   buildWhen: (previous, current) => previous.isSaving != current.isSaving,
                   builder: (context, state) {
                     final isSaving = state.isSaving;
@@ -187,17 +185,20 @@ class _AccountFormWidgetState extends State<AccountFormWidget> {
                       onPressed: isSaving
                           ? null
                           : () {
+                              final limit = double.tryParse(_limitController.text);
+                              if (limit == null) return;
+
+                              final selectedCategory = _selectedCategory;
+                              if (selectedCategory == null) return;
+
                               final isValidated = _formKey.currentState?.validate();
                               if (isValidated == null || !isValidated) return;
 
-                              final selectedAccountGroup = _selectedAccountGroup;
-                              if (selectedAccountGroup == null) return;
-
-                              final event = AccountFormEvent.formSubmitted(
-                                name: _nameController.text,
-                                accountGroup: selectedAccountGroup,
+                              final event = BudgetFormEvent.formSubmitted(
+                                amount: limit,
+                                category: selectedCategory,
                               );
-                              context.read<AccountFormBloc>().add(event);
+                              context.read<BudgetFormBloc>().add(event);
                             },
                       child: Text("Submit"),
                     );
