@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'database.dart';
 import 'logics/account.logic.dart';
 import 'logics/account_group.logic.dart';
+import 'logics/budget.logic.dart';
 import 'logics/currency.logic.dart';
 import 'logics/expense.logic.dart';
 import 'logics/expense_category.logic.dart';
@@ -14,6 +15,7 @@ import 'routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
   runApp(
     MultiRepositoryProvider(
       providers: [
@@ -46,6 +48,9 @@ void main() {
         ),
         RepositoryProvider(
           create: (context) => TransferLogic(context.read<AppDatabase>()),
+        ),
+        RepositoryProvider(
+          create: (context) => BudgetLogic(context.read<AppDatabase>()),
         ),
       ],
       child: const FinanceTracker(),

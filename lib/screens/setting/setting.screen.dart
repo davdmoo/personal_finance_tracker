@@ -19,6 +19,7 @@ class SettingScreen extends StatelessWidget {
             ElevatedButton(onPressed: () => ExpenseCategoryRoute().push(context), child: Text("Expense Categories")),
             ElevatedButton(onPressed: () => IncomeCategoryRoute().push(context), child: Text("Income Categories")),
             ElevatedButton(onPressed: () => CurrencyRoute().push(context), child: Text("Currencies")),
+            ElevatedButton(onPressed: () => BudgetRoute().push(context), child: Text("Budgets")),
           ],
         ),
       ),

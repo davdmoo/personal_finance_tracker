@@ -8,7 +8,8 @@ class ExpenseCategoryLogic {
   const ExpenseCategoryLogic(this.db);
 
   Future<List<ExpenseCategory>> findAll() async {
-    return await db.select(db.expenseCategories).get();
+    final selectStatement = db.select(db.expenseCategories)..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
+    return await selectStatement.get();
   }
 
   Future<ExpenseCategory> create({
