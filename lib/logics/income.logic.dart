@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' as drift;
 
 import '../database.dart';
+import '../models/categorized_income.model.dart';
 
 class IncomeLogic {
   final AppDatabase db;
@@ -28,6 +29,22 @@ class IncomeLogic {
     }).get();
 
     return incomes;
+  }
+
+  Future<List<CategorizedIncome>> findCategorizedIncomes() async {
+    final selectStatement = db.select(db.incomeCategories).join(
+      [drift.innerJoin(db.incomes, db.incomeCategories.id.equalsExp(db.incomes.categoryId))],
+    )
+      ..addColumns([db.incomes.amount.sum()])
+      ..groupBy([db.incomeCategories.id]);
+    final categorizedIncomes = await selectStatement.map((row) {
+      final category = row.readTable(db.incomeCategories);
+      final totalAmount = row.read(db.incomes.amount.sum()) ?? 0;
+
+      return CategorizedIncome(incomeCategory: category, totalAmount: totalAmount);
+    }).get();
+
+    return categorizedIncomes;
   }
 
   Future<Income> create({
