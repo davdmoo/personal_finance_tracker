@@ -1,24 +1,50 @@
 import 'package:drift/drift.dart';
 
 import '../database.dart';
+import '../models/budget_progress.model.dart';
 
 class BudgetLogic {
   final AppDatabase db;
   const BudgetLogic(this.db);
 
-  Future<List<PopulatedBudget>> findAll() async {
+  Future<List<BudgetProgress>> findAll() async {
     final selectBudgetStatement = db.select(db.budgets).join([
       leftOuterJoin(db.expenseCategories, db.expenseCategories.id.equalsExp(db.budgets.categoryId)),
     ])
       ..orderBy([OrderingTerm(expression: db.budgets.updatedAt, mode: OrderingMode.desc)]);
-    final budgets = await selectBudgetStatement.map((row) {
+    final budgets = await selectBudgetStatement.asyncMap((row) async {
+      final budget = row.readTable(db.budgets);
+      final budgetProgress = await getBudgetProgress(budget.id);
+
+      return BudgetProgress(
+        budget: budgetProgress.budget,
+        usedAmount: budgetProgress.usedAmount,
+      );
+    }).get();
+
+    return budgets;
+  }
+
+  Future<BudgetProgress> getBudgetProgress(int id) async {
+    final selectBudgetStatement = db.select(db.budgets).join([
+      leftOuterJoin(db.expenseCategories, db.expenseCategories.id.equalsExp(db.budgets.categoryId)),
+    ])
+      ..where(db.budgets.id.equals(id));
+    final populatedBudget = await selectBudgetStatement.map((row) {
       final budget = row.readTable(db.budgets);
       final category = row.readTable(db.expenseCategories);
 
       return PopulatedBudget(budget: budget, category: category);
-    }).get();
+    }).getSingleOrNull();
+    if (populatedBudget == null) throw Exception("Budget not found. It may have been deleted.");
 
-    return budgets;
+    final expenseSumStatement = await (db.selectOnly(db.expenses)
+          ..where(db.expenses.categoryId.equals(populatedBudget.category.id))
+          ..addColumns([db.expenses.amount.sum()]))
+        .getSingle();
+    final expenseSum = expenseSumStatement.read(db.expenses.amount.sum()) ?? 0;
+
+    return BudgetProgress(budget: populatedBudget, usedAmount: expenseSum);
   }
 
   Future<Budget> create({

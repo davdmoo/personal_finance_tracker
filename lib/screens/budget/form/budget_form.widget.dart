@@ -27,7 +27,7 @@ class _BudgetFormDialogState extends State<BudgetFormDialog> {
     super.initState();
 
     final budget = widget.budget;
-    _limitController = TextEditingController(text: budget?.amount.toString());
+    _limitController = TextEditingController(text: budget?.amount.toInt().toString());
   }
 
   @override
