@@ -6,6 +6,7 @@ import 'screens/account/account.screen.dart';
 import 'screens/account_group/account_group.screen.dart';
 import 'screens/budget/budget.screen.dart';
 import 'screens/currency/currency.screen.dart';
+import 'screens/dashboard/dashboard.screen.dart';
 import 'screens/expense_category/expense_category.screen.dart';
 import 'screens/home/home.screen.dart';
 import 'screens/income_category/income_category.screen.dart';
@@ -148,5 +149,18 @@ class BudgetRoute extends GoRouteData {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return const NoTransitionPage(child: BudgetScreen());
+  }
+}
+
+@TypedGoRoute<DashboardRoute>(path: DashboardRoute.path, name: DashboardRoute.name)
+@immutable
+class DashboardRoute extends GoRouteData {
+  static const path = "/dashboard", name = "dashboard";
+
+  const DashboardRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return const NoTransitionPage(child: DashboardScreen());
   }
 }
