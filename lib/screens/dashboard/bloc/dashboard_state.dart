@@ -6,6 +6,7 @@ class DashboardState with _$DashboardState {
     @Default([]) List<CategorizedExpense> categorizedExpenses,
     @Default([]) List<CategorizedIncome> categorizedIncomes,
     @Default(TimeRange.daily) TimeRange timeRange,
+    DateTimeRange? dateTimeRange,
     @Default(false) bool isLoading,
     Exception? error,
   }) = _DashboardState;
