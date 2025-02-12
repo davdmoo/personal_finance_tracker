@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../database.dart';
+import '../../extensions/double.extension.dart';
 import '../../logics/budget.logic.dart';
 import 'bloc/budget_bloc.dart';
 import 'form/budget_form.widget.dart';
@@ -64,7 +65,7 @@ class BudgetScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(category.name, style: TextStyle(fontSize: 16)),
-                          Text(budget.amount.toString()),
+                          Text(budget.amount.currency),
                         ],
                       ),
                       Expanded(
@@ -79,8 +80,8 @@ class BudgetScreen extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(item.usedAmount.toString()),
-                                Text(budget.amount.toString()),
+                                Text(item.usedAmount.currency),
+                                Text(budget.amount.currency),
                               ],
                             ),
                           ],

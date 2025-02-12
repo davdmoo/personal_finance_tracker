@@ -42,6 +42,7 @@ dependencies:
   json_annotation: ^4.9.0
   go_router_builder: ^2.7.5
   fl_chart: ^0.70.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
