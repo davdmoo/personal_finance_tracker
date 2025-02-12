@@ -6,7 +6,7 @@ class CategorizedIncome {
 
   const CategorizedIncome({required this.incomeCategory, required this.totalAmount});
 
-  double getPercentage(double totalIncome) {
-    return (totalAmount / totalIncome);
+  String getPercentage(double totalIncome) {
+    return "${(double.parse((totalAmount / totalIncome).toStringAsFixed(2)) * 100).toInt()}%";
   }
 }

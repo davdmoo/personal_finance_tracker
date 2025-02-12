@@ -59,13 +59,15 @@ class TransactionFormRoute extends GoRouteData {
   static const path = "/transactions", name = "transactions";
 
   final TransactionFormRouteExtra? $extra;
+  final TransactionFormTab tab;
 
-  const TransactionFormRoute({this.$extra});
+  const TransactionFormRoute({this.$extra, required this.tab});
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return NoTransitionPage(
       child: TransactionFormScreen(
+        tab: tab,
         populatedExpense: $extra?.populatedExpense,
         populatedIncome: $extra?.populatedIncome,
         populatedTransfer: $extra?.populatedTransfer,

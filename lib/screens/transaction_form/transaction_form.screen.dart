@@ -15,9 +15,22 @@ import 'widgets/expense_form.widget.dart';
 import 'widgets/income_form.widget.dart';
 import 'widgets/transfer_form.widget.dart';
 
-class TransactionFormScreen extends StatelessWidget {
-  const TransactionFormScreen({super.key, this.populatedExpense, this.populatedIncome, this.populatedTransfer});
+enum TransactionFormTab {
+  expense,
+  income,
+  transfer;
+}
 
+class TransactionFormScreen extends StatelessWidget {
+  const TransactionFormScreen({
+    super.key,
+    required this.tab,
+    this.populatedExpense,
+    this.populatedIncome,
+    this.populatedTransfer,
+  });
+
+  final TransactionFormTab tab;
   final PopulatedExpense? populatedExpense;
   final PopulatedIncome? populatedIncome;
   final PopulatedTransfer? populatedTransfer;
@@ -95,8 +108,6 @@ class TransactionFormScreen extends StatelessWidget {
   }
 
   int get selectedIndex {
-    if (populatedTransfer != null) return 2;
-    if (populatedIncome != null) return 1;
-    return 0;
+    return tab.index;
   }
 }

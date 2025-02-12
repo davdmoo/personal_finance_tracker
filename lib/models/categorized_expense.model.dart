@@ -6,8 +6,8 @@ class CategorizedExpense {
 
   const CategorizedExpense({required this.expenseCategory, required this.totalAmount});
 
-  double getPercentage(double totalExpense) {
+  String getPercentage(double totalExpense) {
     final amount = totalAmount / totalExpense;
-    return double.parse(amount.toStringAsFixed(2));
+    return "${(double.parse(amount.toStringAsFixed(2)) * 100).toInt()}%";
   }
 }
