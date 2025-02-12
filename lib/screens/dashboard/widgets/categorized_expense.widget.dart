@@ -7,6 +7,7 @@ import '../../../extensions/double.extension.dart';
 import '../../../routes.dart';
 import '../../transaction_form/transaction_form.screen.dart';
 import '../bloc/dashboard_bloc.dart';
+import 'chart_header.widget.dart';
 
 class CategorizedExpenseWidget extends StatelessWidget {
   const CategorizedExpenseWidget({super.key});
@@ -54,6 +55,7 @@ class CategorizedExpenseWidget extends StatelessWidget {
 
         return Column(
           children: [
+            ChartHeaderWidget(),
             Container(
               height: 200,
               padding: EdgeInsets.all(8),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -28,9 +29,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
   Future<void> _onStarted(_Started event, Emitter<DashboardState> emit) async {
     try {
-      emit(state.copyWith(isLoading: true));
+      emit(state.copyWith(isLoading: true, dateTimeRange: state.timeRange.dateRange));
 
-      final categorizedExpenses = await expenseLogic.findCategorizedExpenses();
+      final categorizedExpenses = await expenseLogic.findCategorizedExpenses(state.timeRange);
       emit(state.copyWith(categorizedExpenses: categorizedExpenses));
 
       final categorizedIncomes = await incomeLogic.findCategorizedIncomes();
