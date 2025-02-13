@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart' as drift;
 
 import '../database.dart';
+import '../enums/time_range.enum.dart';
+import '../models/categorized_expense.model.dart';
 
 class ExpenseLogic {
   final AppDatabase db;
@@ -28,6 +30,31 @@ class ExpenseLogic {
     }).get();
 
     return expenses;
+  }
+
+  Future<List<CategorizedExpense>> findCategorizedExpenses(TimeRange timeRange) async {
+    final dateRange = timeRange.dateRange;
+
+    final selectStatement = db.select(db.expenseCategories).join(
+      [
+        drift.innerJoin(
+          db.expenses,
+          db.expenses.categoryId.equalsExp(db.expenseCategories.id),
+          useColumns: false,
+        )
+      ],
+    )
+      ..where(db.expenses.transactionDate.isBetweenValues(dateRange.start, dateRange.end))
+      ..addColumns([db.expenses.amount.sum()])
+      ..groupBy([db.expenseCategories.id]);
+    final categorizedExpenses = await selectStatement.map((row) {
+      final category = row.readTable(db.expenseCategories);
+      final totalAmount = row.read(db.expenses.amount.sum()) ?? 0;
+
+      return CategorizedExpense(expenseCategory: category, totalAmount: totalAmount);
+    }).get();
+
+    return categorizedExpenses;
   }
 
   Future<Expense> create({

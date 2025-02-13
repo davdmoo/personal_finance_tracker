@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../account/account.screen.dart';
+import '../dashboard/dashboard.screen.dart';
 import '../setting/setting.screen.dart';
 import '../transaction_list/transaction_list.screen.dart';
 
@@ -21,14 +21,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: [
         TransactionListScreen(),
-        AccountScreen(),
+        DashboardScreen(),
         SettingScreen(),
       ][_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         destinations: [
           NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-          NavigationDestination(icon: Icon(Icons.account_balance_wallet), label: "Accounts"),
+          NavigationDestination(icon: Icon(Icons.analytics), label: "Analytics"),
           NavigationDestination(icon: Icon(Icons.settings), label: "Settings"),
         ],
         onDestinationSelected: (value) {

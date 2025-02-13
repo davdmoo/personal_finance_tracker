@@ -6,6 +6,7 @@ import '../../logics/expense.logic.dart';
 import '../../logics/income.logic.dart';
 import '../../logics/transfer.logic.dart';
 import '../../routes.dart';
+import '../transaction_form/transaction_form.screen.dart';
 import 'bloc/transaction_list_bloc.dart';
 
 class _TransactionListSelectorState {
@@ -51,7 +52,9 @@ class TransactionListScreen extends StatelessWidget {
                     TextButton(
                       child: Text("Add a transaction here"),
                       onPressed: () async {
-                        final result = await TransactionFormRoute().push<Object>(context);
+                        final result = await TransactionFormRoute(
+                          tab: TransactionFormTab.expense,
+                        ).push<Object>(context);
                         if (result == null || !context.mounted) return;
 
                         if (result is Expense || result is Transfer || result is Income) {
@@ -77,6 +80,7 @@ class TransactionListScreen extends StatelessWidget {
                     trailing: Text(item.expense.amount.toString()),
                     onTap: () async {
                       final result = await TransactionFormRoute(
+                        tab: TransactionFormTab.expense,
                         $extra: TransactionFormRouteExtra(populatedExpense: item),
                       ).push(context);
                       if (result == null || !context.mounted || result == false) return;
@@ -94,6 +98,7 @@ class TransactionListScreen extends StatelessWidget {
                     onTap: () async {
                       final result = await TransactionFormRoute(
                         $extra: TransactionFormRouteExtra(populatedIncome: item),
+                        tab: TransactionFormTab.income,
                       ).push(context);
                       if (result == null || !context.mounted || result == false) return;
 
@@ -116,6 +121,7 @@ class TransactionListScreen extends StatelessWidget {
                     ),
                     onTap: () async {
                       final result = await TransactionFormRoute(
+                        tab: TransactionFormTab.transfer,
                         $extra: TransactionFormRouteExtra(populatedTransfer: item),
                       ).push(context);
                       if (result == null || !context.mounted || result == false) return;
@@ -133,7 +139,7 @@ class TransactionListScreen extends StatelessWidget {
         floatingActionButton: Builder(
           builder: (context) => FloatingActionButton(
             onPressed: () async {
-              final result = await TransactionFormRoute().push<Object>(context);
+              final result = await TransactionFormRoute(tab: TransactionFormTab.expense).push<Object>(context);
               if (result == null || !context.mounted) return;
 
               if (result is Expense || result is Transfer || result is Income) {
