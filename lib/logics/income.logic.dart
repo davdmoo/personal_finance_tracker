@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' as drift;
+import 'package:flutter/material.dart';
 
 import '../database.dart';
 import '../models/categorized_income.model.dart';
@@ -45,6 +46,17 @@ class IncomeLogic {
     }).get();
 
     return categorizedIncomes;
+  }
+
+  Future<double> findTotalIncome(DateTimeRange dateRange) async {
+    final sum = db.incomes.amount.sum();
+
+    final query = db.selectOnly(db.incomes)
+      ..where(db.incomes.transactionDate.isBetweenValues(dateRange.start, dateRange.end))
+      ..addColumns([sum]);
+    final totalIncome = await query.map((row) => row.read(sum) ?? 0).getSingle();
+
+    return totalIncome;
   }
 
   Future<Income> create({

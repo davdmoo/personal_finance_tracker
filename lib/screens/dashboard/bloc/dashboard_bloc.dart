@@ -23,6 +23,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
       await events.map<FutureOr<void>>(
         started: (event) async => await _onStarted(event, emit),
         timeRangeChanged: (event) => _onTimeRangeChanged(event, emit),
+        customDateRangeSelected: (event) => _onCustomDateRangeSelected(event, emit),
       );
     });
   }
@@ -31,7 +32,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     try {
       emit(state.copyWith(isLoading: true, dateTimeRange: state.timeRange.dateRange));
 
-      final categorizedExpenses = await expenseLogic.findCategorizedExpenses(state.timeRange);
+      final categorizedExpenses = await expenseLogic.findCategorizedExpenses(
+        dateRange: state.timeRange.dateRange,
+      );
       emit(state.copyWith(categorizedExpenses: categorizedExpenses));
 
       final categorizedIncomes = await incomeLogic.findCategorizedIncomes();
@@ -47,6 +50,11 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
   void _onTimeRangeChanged(_TimeRangeChanged event, Emitter<DashboardState> emit) {
     emit(state.copyWith(timeRange: event.value));
+    add(DashboardEvent.started());
+  }
+
+  void _onCustomDateRangeSelected(_CustomDateRangeSelected event, Emitter<DashboardState> emit) {
+    emit(state.copyWith(dateTimeRange: event.value, timeRange: TimeRange.custom));
     add(DashboardEvent.started());
   }
 }

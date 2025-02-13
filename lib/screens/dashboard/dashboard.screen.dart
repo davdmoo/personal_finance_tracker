@@ -17,20 +17,16 @@ class DashboardScreen extends StatelessWidget {
         expenseLogic: context.read<ExpenseLogic>(),
         incomeLogic: context.read<IncomeLogic>(),
       )..add(DashboardEvent.started()),
-      child: Scaffold(
-        appBar: AppBar(title: Text("Dashboard")),
-        body: DefaultTabController(
-          length: 2,
-          initialIndex: 0,
-          child: Column(
-            children: [
-              TabBar(tabs: [Tab(text: "Expense"), Tab(text: "Income")]),
-              Expanded(
-                child: TabBarView(
-                  children: [CategorizedExpenseWidget(), CategorizedIncomeWidget()],
-                ),
-              ),
-            ],
+      child: DefaultTabController(
+        length: 2,
+        initialIndex: 0,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text("Dashboard"),
+            bottom: TabBar(tabs: [Tab(text: "Expense"), Tab(text: "Income")]),
+          ),
+          body: TabBarView(
+            children: [CategorizedExpenseWidget(), CategorizedIncomeWidget()],
           ),
         ),
       ),
