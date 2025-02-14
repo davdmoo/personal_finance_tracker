@@ -8,7 +8,6 @@ import '../../../enums/time_range.enum.dart';
 import '../../../logics/expense.logic.dart';
 import '../../../logics/income.logic.dart';
 import '../../../models/categorized_expense.model.dart';
-import '../../../models/monthly_expense.model.dart';
 
 part 'summary_bloc.freezed.dart';
 part 'summary_event.dart';
@@ -48,9 +47,6 @@ class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
 
       final topSpendings = await expenseLogic.findCategorizedExpenses(dateRange: dateTimeRange, limit: 3);
       emit(state.copyWith(topSpendingsByCategory: topSpendings));
-
-      final monthlyTotalExpenses = await expenseLogic.findMonthlyTotalExpense();
-      emit(state.copyWith(monthlyTotalExpenses: monthlyTotalExpenses));
     } catch (err) {
       emit(
         state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),

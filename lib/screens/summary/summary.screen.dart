@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../logics/expense.logic.dart';
 import '../../logics/income.logic.dart';
 import 'bloc/summary_bloc.dart';
-import 'widgets/monthly_total_expense.widget.dart';
 import 'widgets/summary.widget.dart';
 
 class SummaryScreen extends StatelessWidget {
@@ -26,7 +25,6 @@ class SummaryScreen extends StatelessWidget {
               children: [
                 SummaryWidget(),
                 Divider(),
-                MonthlyTotalExpenseWidget(),
               ],
             ),
           ),

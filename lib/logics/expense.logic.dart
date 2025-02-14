@@ -35,10 +35,12 @@ class ExpenseLogic {
 
   Future<List<MonthlyExpense>> findMonthlyTotalExpense() async {
     final now = DateTime.now();
-    final timeZone = now.timeZoneOffset.inHours;
 
+    /// all the data is in UTC (automatically converted by drift on select, insert, or update).
+    /// we use custom expression here so we need to manually add the timezone
+    final timeZone = now.timeZoneOffset.inHours;
     String timeZoneString = "+$timeZone";
-    if (timeZone < 0) {
+    if (timeZone.isNegative) {
       timeZoneString = "-${timeZone.abs()}";
     }
 
