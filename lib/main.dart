@@ -74,9 +74,10 @@ class FinanceTracker extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale("id")],
+      darkTheme: ThemeData.dark(useMaterial3: true),
+      themeMode: ThemeMode.light,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
         textTheme: TextTheme(
           labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
