@@ -1,0 +1,81 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import '../../../enums/time_range.enum.dart';
+import '../bloc/summary_bloc.dart';
+
+class DownloadExcelButton extends StatelessWidget {
+  const DownloadExcelButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SummaryBloc, SummaryState>(
+      buildWhen: (previous, current) => previous.isDownloading != current.isDownloading,
+      builder: (context, state) {
+        final isDownloading = state.isDownloading;
+
+        return FilledButton(
+          onPressed: isDownloading
+              ? null
+              : () async {
+                  Permission permission;
+
+                  // Use correct permission based on Android version
+                  if (await Permission.manageExternalStorage.isGranted) {
+                    permission = Permission.manageExternalStorage;
+                  } else if (await Permission.storage.isGranted) {
+                    permission = Permission.storage;
+                  } else {
+                    permission = Permission.mediaLibrary; // Android 13+
+                  }
+
+                  // Request permission
+                  final status = await permission.request();
+                  print(status);
+                  if (!status.isGranted || status.isDenied) return;
+
+                  if (!context.mounted) return;
+                  final result = await showDialog<TimeRange>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text("Choose a time range"),
+                      content: Column(
+                        spacing: 8,
+                        mainAxisSize: MainAxisSize.min,
+                        children: TimeRange.values
+                            .map(
+                              (el) => ListTile(title: Text(el.displayName), onTap: () => context.pop(el)),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  );
+                  if (result == null || !context.mounted) return;
+
+                  DateTimeRange dateRange = result.dateRange;
+                  // show date range picker if custom
+                  if (result == TimeRange.custom) {
+                    final pickedDateRange = await showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime.fromMicrosecondsSinceEpoch(0),
+                      lastDate: DateTime.now(),
+                    );
+                    if (pickedDateRange == null || !context.mounted) return;
+
+                    dateRange = pickedDateRange;
+                  }
+
+                  final event = SummaryEvent.downloadExcelTriggered(
+                    timeRange: TimeRange.custom,
+                    dateRange: dateRange,
+                  );
+                  context.read<SummaryBloc>().add(event);
+                },
+          child: Text("Download Excel"),
+        );
+      },
+    );
+  }
+}

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../logics/expense.logic.dart';
 import '../../logics/income.logic.dart';
 import 'bloc/summary_bloc.dart';
+import 'widgets/download_excel_button.widget.dart';
 import 'widgets/summary.widget.dart';
 
 class SummaryScreen extends StatelessWidget {
@@ -22,10 +23,7 @@ class SummaryScreen extends StatelessWidget {
             padding: EdgeInsets.all(16),
             child: Column(
               spacing: 16,
-              children: [
-                SummaryWidget(),
-                Divider(),
-              ],
+              children: [SummaryWidget(), Divider(), DownloadExcelButton()],
             ),
           ),
         ),
