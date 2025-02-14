@@ -57,17 +57,10 @@ class BudgetScreen extends StatelessWidget {
                 }
 
                 return ListTile(
-                  key: Key(budget.id.toString()),
-                  subtitle: Row(
+                  title: Row(
                     spacing: 16,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(category.name, style: TextStyle(fontSize: 16)),
-                          Text(budget.amount.currency),
-                        ],
-                      ),
+                      Text(category.name, style: TextStyle(fontWeight: FontWeight.w600)),
                       Expanded(
                         child: Column(
                           spacing: 4,
@@ -78,10 +71,10 @@ class BudgetScreen extends StatelessWidget {
                               color: progressValue == 1.0 ? Colors.red : null,
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              spacing: 4,
                               children: [
-                                Text(item.usedAmount.currency),
-                                Text(budget.amount.currency),
+                                Expanded(child: Text(item.usedAmount.currency, style: TextStyle(fontSize: 12))),
+                                Text(budget.amount.currency, style: TextStyle(fontSize: 12)),
                               ],
                             ),
                           ],

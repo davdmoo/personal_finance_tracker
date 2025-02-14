@@ -17,6 +17,11 @@ extension DateTimeExt on DateTime {
     return dateFormat.format(this);
   }
 
+  String get dateLocaleIdShortYear {
+    final dateFormat = DateFormat("dd/MM/yy", "id_ID");
+    return dateFormat.format(this);
+  }
+
   String get timeLocaleId {
     final dateFormat = DateFormat("HH:mm:ss", "id_ID");
     return dateFormat.format(this);

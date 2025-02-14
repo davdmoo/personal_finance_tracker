@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../enums/time_range.enum.dart';
+import '../enums/time_range.enum.dart';
 
 class TimeRangeDropdown extends StatelessWidget {
   const TimeRangeDropdown({super.key, required this.onSelected, required this.selected});
