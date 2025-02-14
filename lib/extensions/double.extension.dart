@@ -16,4 +16,8 @@ extension DoubleExt on double {
       decimalDigits: 0,
     ).format(this);
   }
+
+  static String getPercentage(double a, double b) {
+    return "${(a / b * 100).toStringAsFixed(0)}%";
+  }
 }

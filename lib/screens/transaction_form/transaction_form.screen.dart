@@ -80,25 +80,21 @@ class TransactionFormScreen extends StatelessWidget {
             },
           ),
         ],
-        child: Scaffold(
-          appBar: AppBar(title: Text("Transaction Form")),
-          body: DefaultTabController(
-            length: 3,
-            initialIndex: selectedIndex,
-            child: Column(
+        child: DefaultTabController(
+          length: 3,
+          initialIndex: selectedIndex,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text("Transaction Form"),
+              bottom: const TabBar(
+                tabs: [Tab(text: "Expense"), Tab(text: "Income"), Tab(text: "Transfer")],
+              ),
+            ),
+            body: TabBarView(
               children: [
-                const TabBar(
-                  tabs: [Tab(text: "Expense"), Tab(text: "Income"), Tab(text: "Transfer")],
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      ExpenseFormWidget(populatedExpense: populatedExpense),
-                      IncomeFormWidget(populatedIncome: populatedIncome),
-                      TransferFormWidget(populatedTransfer: populatedTransfer),
-                    ],
-                  ),
-                ),
+                ExpenseFormWidget(populatedExpense: populatedExpense),
+                IncomeFormWidget(populatedIncome: populatedIncome),
+                TransferFormWidget(populatedTransfer: populatedTransfer),
               ],
             ),
           ),

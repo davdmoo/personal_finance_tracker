@@ -1,8 +1,9 @@
 import 'package:drift/drift.dart' as drift;
+import 'package:flutter/material.dart';
 
 import '../database.dart';
-import '../enums/time_range.enum.dart';
 import '../models/categorized_expense.model.dart';
+import '../models/monthly_expense.model.dart';
 
 class ExpenseLogic {
   final AppDatabase db;
@@ -32,10 +33,46 @@ class ExpenseLogic {
     return expenses;
   }
 
-  Future<List<CategorizedExpense>> findCategorizedExpenses(TimeRange timeRange) async {
-    final dateRange = timeRange.dateRange;
+  Future<List<MonthlyExpense>> findMonthlyTotalExpense() async {
+    final now = DateTime.now();
 
-    final selectStatement = db.select(db.expenseCategories).join(
+    /// all the data is in UTC (automatically converted by drift on select, insert, or update).
+    /// we use custom expression here so we need to manually add the timezone
+    final timeZone = now.timeZoneOffset.inHours;
+    String timeZoneString = "+$timeZone";
+    if (timeZone.isNegative) {
+      timeZoneString = "-${timeZone.abs()}";
+    }
+
+    final sixMonthsAgo = DateTime.utc(now.year, now.month - 5, 1);
+    final month = drift.CustomExpression<String>(
+      "strftime('%Y-%m', datetime(${db.expenses.transactionDate.name}, 'unixepoch', '$timeZoneString hours'))",
+    );
+    final sum = db.expenses.amount.sum();
+
+    final query = db.selectOnly(db.expenses)
+      ..where(db.expenses.transactionDate.isBiggerOrEqualValue(sixMonthsAgo))
+      ..addColumns([month, sum])
+      ..groupBy([month])
+      ..orderBy([drift.OrderingTerm.asc(month)]);
+    final result = await query.map((row) {
+      final date = row.read(month)?.split("-") ?? []; // will return "YYYY-mm";
+
+      final y = int.tryParse(date[0]) ?? DateTime.now().year;
+      final m = int.tryParse(date[1]) ?? DateTime.now().month;
+
+      final amount = row.read(sum) ?? 0;
+
+      return MonthlyExpense(year: y, month: m, amount: amount);
+    }).get();
+
+    return result;
+  }
+
+  Future<List<CategorizedExpense>> findCategorizedExpenses({required DateTimeRange dateRange, int? limit}) async {
+    final sum = db.expenses.amount.sum();
+
+    var selectStatement = db.select(db.expenseCategories).join(
       [
         drift.innerJoin(
           db.expenses,
@@ -45,16 +82,32 @@ class ExpenseLogic {
       ],
     )
       ..where(db.expenses.transactionDate.isBetweenValues(dateRange.start, dateRange.end))
-      ..addColumns([db.expenses.amount.sum()])
+      ..addColumns([sum])
+      ..orderBy([drift.OrderingTerm.desc(sum)])
       ..groupBy([db.expenseCategories.id]);
+    if (limit != null) {
+      selectStatement = selectStatement..limit(limit);
+    }
+
     final categorizedExpenses = await selectStatement.map((row) {
       final category = row.readTable(db.expenseCategories);
-      final totalAmount = row.read(db.expenses.amount.sum()) ?? 0;
+      final totalAmount = row.read(sum) ?? 0;
 
       return CategorizedExpense(expenseCategory: category, totalAmount: totalAmount);
     }).get();
 
     return categorizedExpenses;
+  }
+
+  Future<double> findTotalExpense(DateTimeRange dateRange) async {
+    final sum = db.expenses.amount.sum();
+
+    final selectStatement = db.selectOnly(db.expenses)
+      ..where(db.expenses.transactionDate.isBetweenValues(dateRange.start, dateRange.end))
+      ..addColumns([sum]);
+    final totalExpense = await selectStatement.map((row) => row.read(sum) ?? 0).getSingle();
+
+    return totalExpense;
   }
 
   Future<Expense> create({

@@ -6,6 +6,7 @@ import '../../logics/income.logic.dart';
 import 'bloc/dashboard_bloc.dart';
 import 'widgets/categorized_expense.widget.dart';
 import 'widgets/categorized_income.widget.dart';
+import 'widgets/monthly_expense_trend.widget.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -17,20 +18,16 @@ class DashboardScreen extends StatelessWidget {
         expenseLogic: context.read<ExpenseLogic>(),
         incomeLogic: context.read<IncomeLogic>(),
       )..add(DashboardEvent.started()),
-      child: Scaffold(
-        appBar: AppBar(title: Text("Dashboard")),
-        body: DefaultTabController(
-          length: 2,
-          initialIndex: 0,
-          child: Column(
-            children: [
-              TabBar(tabs: [Tab(text: "Expense"), Tab(text: "Income")]),
-              Expanded(
-                child: TabBarView(
-                  children: [CategorizedExpenseWidget(), CategorizedIncomeWidget()],
-                ),
-              ),
-            ],
+      child: DefaultTabController(
+        length: 3,
+        initialIndex: 0,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text("Dashboard"),
+            bottom: TabBar(tabs: [Tab(text: "Expense"), Tab(text: "Income"), Tab(text: "Trend")]),
+          ),
+          body: TabBarView(
+            children: [CategorizedExpenseWidget(), CategorizedIncomeWidget(), ExpenseTrendBarChartWidget()],
           ),
         ),
       ),
