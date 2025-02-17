@@ -18,7 +18,6 @@ class ExpenseLogic {
       ..orderBy([drift.OrderingTerm(expression: db.expenses.transactionDate, mode: drift.OrderingMode.desc)]);
 
     if (dateRange != null) {
-      print("Test");
       query = query..where(db.expenses.transactionDate.isBetweenValues(dateRange.start, dateRange.end));
     }
 

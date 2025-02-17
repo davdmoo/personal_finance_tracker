@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../enums/time_range.enum.dart';
+import '../../../logics/create_excel.logic.dart';
 import '../../../logics/expense.logic.dart';
 import '../../../logics/income.logic.dart';
 import '../../../models/categorized_expense.model.dart';
@@ -21,10 +20,12 @@ part 'summary_state.dart';
 class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
   final ExpenseLogic expenseLogic;
   final IncomeLogic incomeLogic;
+  final CreateExcelLogic createExcelLogic;
 
   SummaryBloc({
     required this.expenseLogic,
     required this.incomeLogic,
+    required this.createExcelLogic,
   }) : super(_SummaryState()) {
     on<SummaryEvent>((events, emit) async {
       await events.map<FutureOr<void>>(
@@ -74,7 +75,7 @@ class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
 
   Future<void> _onDownloadExcelTriggered(_DownloadExcelTriggered event, Emitter<SummaryState> emit) async {
     try {
-      emit(state.copyWith(isDownloading: true));
+      emit(state.copyWith(isDownloading: true, excelReport: null));
 
       // request for permission for reading and writing to file storage
       late final Permission permission;
@@ -99,30 +100,8 @@ class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
         throw Exception("Date range must be present if you picked custom time range.");
       }
 
-      final expenses = await expenseLogic.findAll(dateRange: dateRange ?? timeRange.dateRange);
-
-      final excel = Excel.createExcel();
-      excel.rename("Sheet1", "Report");
-
-      Sheet sheetObject = excel["Report"];
-      final cell = sheetObject.cell(CellIndex.indexByString("A1"));
-      cell.value = TextCellValue("Testing 123");
-
-      final fileBytes = excel.save();
-      if (fileBytes == null) throw Exception("Failed while saving excel file. Please try again.");
-
-      Directory? dir = await getDownloadsDirectory();
-      if (dir == null) throw Exception("Failed getting downloads directory. Please try again.");
-
-      if (Platform.isAndroid) {
-        dir = Directory("/storage/emulated/0/Download");
-      }
-
-      final file = File("${dir.path}/report.xlsx");
-      file.createSync(recursive: true);
-
-      await file.writeAsBytes(fileBytes);
-      log("Successfully downloaded.");
+      final excelReport = await createExcelLogic(dateRange ?? timeRange.dateRange);
+      emit(state.copyWith(excelReport: excelReport));
     } catch (err) {
       log(err.toString());
       emit(
