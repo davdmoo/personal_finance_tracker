@@ -7,6 +7,7 @@ import 'database.dart';
 import 'logics/account.logic.dart';
 import 'logics/account_group.logic.dart';
 import 'logics/budget.logic.dart';
+import 'logics/create_excel.logic.dart';
 import 'logics/currency.logic.dart';
 import 'logics/expense.logic.dart';
 import 'logics/expense_category.logic.dart';
@@ -55,6 +56,13 @@ void main() async {
         RepositoryProvider(
           create: (context) => BudgetLogic(context.read<AppDatabase>()),
         ),
+        RepositoryProvider(
+          create: (context) => CreateExcelLogic(
+            expenseLogic: context.read<ExpenseLogic>(),
+            incomeLogic: context.read<IncomeLogic>(),
+            transferLogic: context.read<TransferLogic>(),
+          ),
+        ),
       ],
       child: const FinanceTracker(),
     ),
@@ -73,7 +81,8 @@ class FinanceTracker extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale("id")],
+      locale: Locale("en", "US"),
+      supportedLocales: const [Locale("en", "US"), Locale("id", "ID")],
       darkTheme: ThemeData.dark(useMaterial3: true),
       themeMode: ThemeMode.light,
       theme: ThemeData(

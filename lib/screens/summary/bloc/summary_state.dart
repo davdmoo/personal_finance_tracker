@@ -10,6 +10,7 @@ class SummaryState with _$SummaryState {
     DateTimeRange? dateTimeRange,
     @Default(false) bool isLoading,
     @Default(false) bool isDownloading,
+    File? excelReport,
     Exception? error,
   }) = _SummaryState;
 }
