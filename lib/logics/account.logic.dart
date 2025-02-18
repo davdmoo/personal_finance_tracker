@@ -88,4 +88,27 @@ class AccountLogic {
 
     return updatedAccount;
   }
+
+  Future<List<Account>> reorder(List<Account> accounts) async {
+    return await db.transaction<List<Account>>(
+      () async {
+        final List<Account> updatedAccounts = [];
+
+        for (int i = 0; i < accounts.length; i++) {
+          final account = accounts[i];
+          final data = AccountsCompanion(order: drift.Value(i + 1));
+
+          final query = db.update(db.accounts)..where((t) => t.id.equals(account.id));
+          final result = await query.writeReturning(data);
+
+          final updatedAccount = result.firstOrNull;
+          if (updatedAccount == null) throw Exception("Failed while updating order.");
+
+          updatedAccounts.add(updatedAccount);
+        }
+
+        return updatedAccounts;
+      },
+    );
+  }
 }

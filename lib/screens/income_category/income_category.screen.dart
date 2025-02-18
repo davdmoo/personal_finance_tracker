@@ -45,7 +45,10 @@ class IncomeCategoryScreen extends StatelessWidget {
                     },
                   );
                 },
-                onReorder: (int oldIndex, int newIndex) {},
+                onReorder: (int oldIndex, int newIndex) {
+                  final event = IncomeCategoryListEvent.reordered(oldIndex: oldIndex, newIndex: newIndex);
+                  context.read<IncomeCategoryListBloc>().add(event);
+                },
               );
             },
           ),
