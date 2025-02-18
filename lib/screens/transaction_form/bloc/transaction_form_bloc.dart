@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../database.dart';
 import '../../../logics/account.logic.dart';
 import '../../../logics/currency.logic.dart';
+import '../../../logics/default_currency.logic.dart';
 import '../../../logics/expense.logic.dart';
 import '../../../logics/expense_category.logic.dart';
 import '../../../logics/income.logic.dart';
@@ -20,6 +21,7 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
   final ExpenseLogic expenseLogic;
   final IncomeLogic incomeLogic;
   final TransferLogic transferLogic;
+  final DefaultCurrencyLogic defaultCurrencyLogic;
 
   final AccountLogic accountLogic;
   final ExpenseCategoryLogic expenseCategoryLogic;
@@ -38,6 +40,7 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
     required this.expenseCategoryLogic,
     required this.incomeCategoryLogic,
     required this.currencyLogic,
+    required this.defaultCurrencyLogic,
     this.populatedExpense,
     this.populatedIncome,
     this.populatedTransfer,
@@ -80,12 +83,14 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
     try {
       emit(state.copyWith(isSaving: true));
 
+      final defaultCurrency = await defaultCurrencyLogic.getDefaultCurrency();
+
       final populatedExpense = this.populatedExpense;
       if (populatedExpense == null) {
         final newExpense = await expenseLogic.create(
           accountId: event.account.id,
           amount: event.amount,
-          currencyId: event.currency.id,
+          currencyId: defaultCurrency!.id,
           expenseCategoryId: event.category.id,
           transactionDate: event.transactionDate,
           note: event.note,
@@ -97,7 +102,7 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
           id: populatedExpense.expense.id,
           accountId: event.account.id,
           amount: event.amount,
-          currencyId: event.currency.id,
+          currencyId: defaultCurrency!.id,
           expenseCategoryId: event.category.id,
           transactionDate: event.transactionDate,
           note: event.note,
@@ -118,12 +123,14 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
     try {
       emit(state.copyWith(isSaving: true));
 
+      final defaultCurrency = await defaultCurrencyLogic.getDefaultCurrency();
+
       final populatedIncome = this.populatedIncome;
       if (populatedIncome == null) {
         final newIncome = await incomeLogic.create(
           accountId: event.account.id,
           amount: event.amount,
-          currencyId: event.currency.id,
+          currencyId: defaultCurrency!.id,
           expenseCategoryId: event.category.id,
           transactionDate: event.transactionDate,
           note: event.note,
@@ -135,7 +142,7 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
           id: populatedIncome.income.id,
           accountId: event.account.id,
           amount: event.amount,
-          currencyId: event.currency.id,
+          currencyId: defaultCurrency!.id,
           incomeCategoryId: event.category.id,
           transactionDate: event.transactionDate,
           note: event.note,
@@ -156,12 +163,14 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
     try {
       emit(state.copyWith(isSaving: true));
 
+      final defaultCurrency = await defaultCurrencyLogic.getDefaultCurrency();
+
       final populatedTransfer = this.populatedTransfer;
       if (populatedTransfer == null) {
         final newTransfer = await transferLogic.create(
           accountOrigin: event.accountOrigin.id,
           accountDestination: event.accountDestination.id,
-          currency: event.currency.id,
+          currency: defaultCurrency!.id,
           amount: event.amount,
           fee: event.fee,
           note: event.note,
@@ -174,7 +183,7 @@ class TransactionFormBloc extends Bloc<TransactionFormEvent, TransactionFormStat
           id: populatedTransfer.transfer.id,
           accountOrigin: event.accountOrigin.id,
           accountDestination: event.accountDestination.id,
-          currency: event.currency.id,
+          currency: defaultCurrency!.id,
           amount: event.amount,
           fee: event.fee,
           note: event.note,

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../database.dart';
 import '../../logics/account.logic.dart';
 import '../../logics/currency.logic.dart';
+import '../../logics/default_currency.logic.dart';
 import '../../logics/expense.logic.dart';
 import '../../logics/expense_category.logic.dart';
 import '../../logics/income.logic.dart';
@@ -49,6 +50,7 @@ class TransactionFormScreen extends StatelessWidget {
         currencyLogic: context.read<CurrencyLogic>(),
         expenseCategoryLogic: context.read<ExpenseCategoryLogic>(),
         incomeCategoryLogic: context.read<IncomeCategoryLogic>(),
+        defaultCurrencyLogic: context.read<DefaultCurrencyLogic>(),
       )..add(TransactionFormEvent.started()),
       child: MultiBlocListener(
         listeners: [

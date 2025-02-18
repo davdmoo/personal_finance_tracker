@@ -22,7 +22,6 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
 
   Account? _selectedAccount;
   IncomeCategory? _selectedCategory;
-  Currency? _selectedCurrency;
 
   @override
   void initState() {
@@ -38,7 +37,6 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
 
     _selectedAccount = populatedIncome.account;
     _selectedCategory = populatedIncome.category;
-    _selectedCurrency = populatedIncome.currency;
   }
 
   @override
@@ -235,82 +233,6 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
                 );
               },
             ),
-            BlocBuilder<TransactionFormBloc, TransactionFormState>(
-              buildWhen: (previous, current) => previous.currencies != current.currencies,
-              builder: (context, state) {
-                final currencies = state.currencies;
-
-                return StatefulBuilder(
-                  builder: (context, setState) => Autocomplete<Currency>(
-                    initialValue: TextEditingValue(text: _selectedCurrency?.name ?? ""),
-                    displayStringForOption: (option) => option.name,
-                    fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) => TextFormField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      readOnly: _selectedCurrency != null,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return "This field is required";
-                        if (_selectedCurrency == null) return "You have to select a currency";
-
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        label: Text("Currency"),
-                        suffixIcon: _selectedCurrency != null
-                            ? IconButton(
-                                onPressed: () {
-                                  controller.clear();
-                                  setState(() {
-                                    _selectedCurrency = null;
-                                  });
-                                },
-                                icon: const Icon(Icons.clear, size: 16),
-                              )
-                            : null,
-                      ),
-                    ),
-                    optionsBuilder: (textEditingValue) {
-                      final value = textEditingValue.text.toLowerCase();
-                      if (value.isEmpty) return currencies;
-
-                      return currencies.where((account) => account.name.toLowerCase().contains(value));
-                    },
-                    onSelected: (option) {
-                      setState(() {
-                        _selectedCurrency = option;
-                      });
-                    },
-                    optionsViewBuilder: (context, onSelected, iterableOptions) {
-                      final options = iterableOptions.toList();
-
-                      return Align(
-                        alignment: Alignment.topLeft,
-                        child: Material(
-                          elevation: 4,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 600, maxWidth: 360),
-                            child: ListView.builder(
-                              padding: EdgeInsets.zero,
-                              shrinkWrap: true,
-                              itemCount: options.length,
-                              itemBuilder: (context, index) {
-                                final account = options.elementAt(index);
-
-                                return ListTile(
-                                  title: Text(account.name),
-                                  onTap: () => onSelected(account),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
             TextFormField(
               controller: _noteController,
               decoration: InputDecoration(label: Text("Note")),
@@ -331,15 +253,11 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
                       final selectedCategory = _selectedCategory;
                       if (selectedCategory == null) return;
 
-                      final selectedCurrency = _selectedCurrency;
-                      if (selectedCurrency == null) return;
-
                       final event = TransactionFormEvent.incomeFormSubmitted(
                         transactionDate: DateTime.parse(_dateController.text),
                         amount: double.parse(_amountController.text),
                         account: selectedAccount,
                         category: selectedCategory,
-                        currency: selectedCurrency,
                         note: _noteController.text,
                       );
                       context.read<TransactionFormBloc>().add(event);

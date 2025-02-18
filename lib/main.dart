@@ -9,6 +9,7 @@ import 'logics/account_group.logic.dart';
 import 'logics/budget.logic.dart';
 import 'logics/create_excel.logic.dart';
 import 'logics/currency.logic.dart';
+import 'logics/default_currency.logic.dart';
 import 'logics/expense.logic.dart';
 import 'logics/expense_category.logic.dart';
 import 'logics/income.logic.dart';
@@ -62,6 +63,9 @@ void main() async {
             incomeLogic: context.read<IncomeLogic>(),
             transferLogic: context.read<TransferLogic>(),
           ),
+        ),
+        RepositoryProvider(
+          create: (context) => DefaultCurrencyLogic(),
         ),
       ],
       child: const FinanceTracker(),

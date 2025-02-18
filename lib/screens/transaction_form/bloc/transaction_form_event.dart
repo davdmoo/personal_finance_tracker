@@ -8,7 +8,6 @@ class TransactionFormEvent with _$TransactionFormEvent {
     required double amount,
     required Account account,
     required ExpenseCategory category,
-    required Currency currency,
     String? note,
   }) = _ExpenseFormSubmitted;
   const factory TransactionFormEvent.incomeFormSubmitted({
@@ -16,7 +15,6 @@ class TransactionFormEvent with _$TransactionFormEvent {
     required double amount,
     required Account account,
     required IncomeCategory category,
-    required Currency currency,
     String? note,
   }) = _IncomeFormSubmitted;
   const factory TransactionFormEvent.transferFormSubmitted({
@@ -25,7 +23,6 @@ class TransactionFormEvent with _$TransactionFormEvent {
     required double fee,
     required Account accountOrigin,
     required Account accountDestination,
-    required Currency currency,
     String? note,
   }) = _TransferFormSubmitted;
 }
