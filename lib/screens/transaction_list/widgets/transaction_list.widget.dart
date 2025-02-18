@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../database.dart';
+import '../../../extensions/date_time.extensions.dart';
+import '../../../extensions/double.extension.dart';
 import '../../../logics/expense.logic.dart';
 import '../../../logics/income.logic.dart';
 import '../../../logics/transfer.logic.dart';
@@ -75,8 +77,8 @@ class TransactionListWidget extends StatelessWidget {
                 if (item is PopulatedExpense) {
                   return ListTile(
                     title: Text(item.expense.note),
-                    subtitle: Text(item.expense.transactionDate.toLocal().toIso8601String()),
-                    trailing: Text(item.expense.amount.toString()),
+                    subtitle: Text(item.expense.transactionDate.dateTimeLocaleIdShort),
+                    trailing: Text(item.expense.amount.currency),
                     onTap: () async {
                       final result = await TransactionFormRoute(
                         tab: TransactionFormTab.expense,
@@ -92,8 +94,8 @@ class TransactionListWidget extends StatelessWidget {
                 if (item is PopulatedIncome) {
                   return ListTile(
                     title: Text(item.income.note),
-                    subtitle: Text(item.income.transactionDate.toLocal().toIso8601String()),
-                    trailing: Text(item.income.amount.toString()),
+                    subtitle: Text(item.income.transactionDate.dateTimeLocaleIdShort),
+                    trailing: Text(item.income.amount.currency),
                     onTap: () async {
                       final result = await TransactionFormRoute(
                         $extra: TransactionFormRouteExtra(populatedIncome: item),
@@ -109,13 +111,13 @@ class TransactionListWidget extends StatelessWidget {
                 if (item is PopulatedTransfer) {
                   return ListTile(
                     title: Text(item.transfer.note),
-                    subtitle: Text(item.transfer.transactionDate.toLocal().toIso8601String()),
+                    subtitle: Text(item.transfer.transactionDate.dateTimeLocaleIdShort),
                     trailing: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(item.transfer.amount.toString()),
-                        Text("Fee: ${item.transfer.fee.toString()}", style: TextStyle(fontSize: 11)),
+                        Text(item.transfer.amount.currency),
+                        Text("Fee: ${item.transfer.fee.currency}", style: TextStyle(fontSize: 11)),
                       ],
                     ),
                     onTap: () async {

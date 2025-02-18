@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../database.dart';
+import '../../../extensions/date_time.extensions.dart';
 import '../bloc/transaction_form_bloc.dart';
 
 class IncomeFormWidget extends StatefulWidget {
@@ -17,21 +18,36 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
   final _formKey = GlobalKey<FormState>();
 
   final _dateController = TextEditingController();
+  final _timeController = TextEditingController();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
   Account? _selectedAccount;
   IncomeCategory? _selectedCategory;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
     super.initState();
 
     final populatedIncome = widget.populatedIncome;
-    if (populatedIncome == null) return;
+    if (populatedIncome == null) {
+      // only populate the date and time
+      final now = DateTime.now();
+      _selectedDate = now;
+      _dateController.text = now.dateLocaleId;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _timeController.text = TimeOfDay.fromDateTime(now).format(context);
+      });
+      return;
+    }
 
     final income = populatedIncome.income;
-    _dateController.text = income.transactionDate.toIso8601String();
+    _selectedDate = income.transactionDate;
+    _dateController.text = income.transactionDate.dateTimeLocaleId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _timeController.text = TimeOfDay.fromDateTime(income.transactionDate).format(context);
+    });
     _amountController.text = income.amount.toInt().toString();
     _noteController.text = income.note;
 
@@ -44,6 +60,7 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
     _dateController.dispose();
     _amountController.dispose();
     _noteController.dispose();
+    _timeController.dispose();
 
     super.dispose();
   }
@@ -57,27 +74,62 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
         child: Column(
           spacing: 8,
           children: [
-            TextFormField(
-              controller: _dateController,
-              decoration: InputDecoration(label: Text("Date")),
-              readOnly: true,
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  firstDate: DateTime.fromMillisecondsSinceEpoch(0),
-                  lastDate: DateTime.now().add(Duration(days: 365 * 100)),
-                );
-                if (date == null) return;
+            Row(
+              spacing: 8,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _dateController,
+                    decoration: InputDecoration(label: Text("Date")),
+                    readOnly: true,
+                    onTap: () async {
+                      DateTime? date = await showDatePicker(
+                        context: context,
+                        firstDate: DateTime.fromMillisecondsSinceEpoch(0),
+                        lastDate: DateTime.now().add(Duration(days: 365 * 100)),
+                      );
+                      if (date == null) return;
 
-                setState(() {
-                  _dateController.text = date.toIso8601String();
-                });
-              },
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (value) {
-                if (value == null || value.isEmpty) return "This field is required.";
-                return null;
-              },
+                      final now = DateTime.now();
+                      date = date.copyWith(hour: now.hour, minute: now.minute);
+
+                      setState(() {
+                        _dateController.text = date?.dateLocaleId ?? "";
+                        _selectedDate = date;
+                      });
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return "This field is required";
+                      return null;
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: TextFormField(
+                    controller: _timeController,
+                    decoration: InputDecoration(label: Text("Time")),
+                    readOnly: true,
+                    onTap: () async {
+                      TimeOfDay? time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (time == null) return;
+
+                      setState(() {
+                        _timeController.text = time.format(context);
+                        _selectedDate = _selectedDate?.copyWith(hour: time.hour, minute: time.minute);
+                      });
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return "This field is required";
+                      return null;
+                    },
+                  ),
+                ),
+              ],
             ),
             TextFormField(
               controller: _amountController,
@@ -266,8 +318,11 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
                       final selectedCategory = _selectedCategory;
                       if (selectedCategory == null) return;
 
+                      final selectedDate = _selectedDate;
+                      if (selectedDate == null) return;
+
                       final event = TransactionFormEvent.incomeFormSubmitted(
-                        transactionDate: DateTime.parse(_dateController.text),
+                        transactionDate: selectedDate,
                         amount: double.parse(_amountController.text),
                         account: selectedAccount,
                         category: selectedCategory,

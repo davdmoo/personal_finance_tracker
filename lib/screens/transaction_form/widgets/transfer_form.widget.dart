@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../database.dart';
+import '../../../extensions/date_time.extensions.dart';
 import '../bloc/transaction_form_bloc.dart';
 
 class TransferFormWidget extends StatefulWidget {
@@ -17,22 +18,37 @@ class TransferFormWidgetState extends State<TransferFormWidget> {
   final _formKey = GlobalKey<FormState>();
 
   final _dateController = TextEditingController();
+  final _timeController = TextEditingController();
   final _amountController = TextEditingController();
   final _feeController = TextEditingController(text: "0");
   final _noteController = TextEditingController();
 
   Account? _selectedOrigin;
   Account? _selectedDestination;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
     super.initState();
 
     final populatedTransfer = widget.populatedTransfer;
-    if (populatedTransfer == null) return;
+    if (populatedTransfer == null) {
+      // only populate the date and time
+      final now = DateTime.now();
+      _selectedDate = now;
+      _dateController.text = now.dateLocaleId;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _timeController.text = TimeOfDay.fromDateTime(now).format(context);
+      });
+      return;
+    }
 
     final transfer = populatedTransfer.transfer;
-    _dateController.text = transfer.transactionDate.toIso8601String();
+    _selectedDate = transfer.transactionDate;
+    _dateController.text = transfer.transactionDate.dateTimeLocaleId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _timeController.text = TimeOfDay.fromDateTime(transfer.transactionDate).format(context);
+    });
     _amountController.text = transfer.amount.toInt().toString();
     _feeController.text = transfer.fee.toInt().toString();
     _noteController.text = transfer.note;
@@ -44,6 +60,7 @@ class TransferFormWidgetState extends State<TransferFormWidget> {
   @override
   void dispose() {
     _dateController.dispose();
+    _timeController.dispose();
     _amountController.dispose();
     _noteController.dispose();
 
@@ -59,27 +76,62 @@ class TransferFormWidgetState extends State<TransferFormWidget> {
         child: Column(
           spacing: 8,
           children: [
-            TextFormField(
-              controller: _dateController,
-              decoration: InputDecoration(label: Text("Date")),
-              readOnly: true,
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  firstDate: DateTime.fromMillisecondsSinceEpoch(0),
-                  lastDate: DateTime.now().add(Duration(days: 365 * 100)),
-                );
-                if (date == null) return;
+            Row(
+              spacing: 8,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _dateController,
+                    decoration: InputDecoration(label: Text("Date")),
+                    readOnly: true,
+                    onTap: () async {
+                      DateTime? date = await showDatePicker(
+                        context: context,
+                        firstDate: DateTime.fromMillisecondsSinceEpoch(0),
+                        lastDate: DateTime.now().add(Duration(days: 365 * 100)),
+                      );
+                      if (date == null) return;
 
-                setState(() {
-                  _dateController.text = date.toIso8601String();
-                });
-              },
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (value) {
-                if (value == null || value.isEmpty) return "This field is required";
-                return null;
-              },
+                      final now = DateTime.now();
+                      date = date.copyWith(hour: now.hour, minute: now.minute);
+
+                      setState(() {
+                        _dateController.text = date?.dateLocaleId ?? "";
+                        _selectedDate = date;
+                      });
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return "This field is required";
+                      return null;
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: TextFormField(
+                    controller: _timeController,
+                    decoration: InputDecoration(label: Text("Time")),
+                    readOnly: true,
+                    onTap: () async {
+                      TimeOfDay? time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (time == null) return;
+
+                      setState(() {
+                        _timeController.text = time.format(context);
+                        _selectedDate = _selectedDate?.copyWith(hour: time.hour, minute: time.minute);
+                      });
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return "This field is required";
+                      return null;
+                    },
+                  ),
+                ),
+              ],
             ),
             TextFormField(
               controller: _amountController,
@@ -285,8 +337,11 @@ class TransferFormWidgetState extends State<TransferFormWidget> {
                       final selectedDestination = _selectedDestination;
                       if (selectedDestination == null) return;
 
+                      final selectedDate = _selectedDate;
+                      if (selectedDate == null) return;
+
                       final event = TransactionFormEvent.transferFormSubmitted(
-                        transactionDate: DateTime.parse(_dateController.text),
+                        transactionDate: selectedDate,
                         amount: double.parse(_amountController.text),
                         fee: double.parse(_feeController.text),
                         note: _noteController.text,
