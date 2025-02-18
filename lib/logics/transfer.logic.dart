@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' as drift;
+import 'package:flutter/material.dart';
 
 import '../database.dart';
 
@@ -6,10 +7,11 @@ class TransferLogic {
   final AppDatabase db;
   const TransferLogic(this.db);
 
-  Future<List<PopulatedTransfer>> findAll() async {
+  Future<List<PopulatedTransfer>> findAll({DateTimeRange? dateRange}) async {
     final accountOriginAlias = db.alias(db.accounts, "origin");
     final accountDestinationAlias = db.alias(db.accounts, "destination");
-    final selectTransferStatement = db.select(db.transfers).join([
+
+    var query = db.select(db.transfers).join([
       drift.leftOuterJoin(accountOriginAlias, accountOriginAlias.id.equalsExp(db.transfers.accountOrigin)),
       drift.leftOuterJoin(
         accountDestinationAlias,
@@ -18,7 +20,12 @@ class TransferLogic {
       drift.leftOuterJoin(db.currencies, db.currencies.id.equalsExp(db.transfers.currencyId)),
     ])
       ..orderBy([drift.OrderingTerm(expression: db.transfers.transactionDate, mode: drift.OrderingMode.desc)]);
-    final transfers = await selectTransferStatement.map((row) {
+
+    if (dateRange != null) {
+      query = query..where(db.expenses.transactionDate.isBetweenValues(dateRange.start, dateRange.end));
+    }
+
+    final transfers = await query.map((row) {
       final transfer = row.readTable(db.transfers);
       final accountOrigin = row.readTableOrNull(accountOriginAlias);
       final accountDestination = row.readTableOrNull(accountDestinationAlias);

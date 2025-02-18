@@ -9,6 +9,8 @@ class SummaryState with _$SummaryState {
     @Default(TimeRange.daily) TimeRange timeRange,
     DateTimeRange? dateTimeRange,
     @Default(false) bool isLoading,
+    @Default(false) bool isExporting,
+    File? excelReport,
     Exception? error,
   }) = _SummaryState;
 }
