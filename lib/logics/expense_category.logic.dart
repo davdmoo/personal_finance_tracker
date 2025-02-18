@@ -57,4 +57,27 @@ class ExpenseCategoryLogic {
 
     return updatedCategory;
   }
+
+  Future<List<ExpenseCategory>> reorder(List<ExpenseCategory> categories) async {
+    return await db.transaction<List<ExpenseCategory>>(
+      () async {
+        final List<ExpenseCategory> updatedCategories = [];
+
+        for (int i = 0; i < categories.length; i++) {
+          final category = categories[i];
+          final data = ExpenseCategoriesCompanion(order: drift.Value(i + 1));
+
+          final query = db.update(db.expenseCategories)..where((t) => t.id.equals(category.id));
+          final result = await query.writeReturning(data);
+
+          final updatedCategory = result.firstOrNull;
+          if (updatedCategory == null) throw Exception("Failed while updating order.");
+
+          updatedCategories.add(updatedCategory);
+        }
+
+        return updatedCategories;
+      },
+    );
+  }
 }
