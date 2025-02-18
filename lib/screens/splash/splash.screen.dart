@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../database.dart';
+import '../../logics/currency.logic.dart';
+import '../../logics/default_currency.logic.dart';
 import '../../routes.dart';
 import 'bloc/splash_bloc.dart';
 
@@ -11,7 +13,11 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SplashBloc(context.read<AppDatabase>())..add(SplashEvent.started()),
+      create: (context) => SplashBloc(
+        db: context.read<AppDatabase>(),
+        currencyLogic: context.read<CurrencyLogic>(),
+        defaultCurrencyLogic: context.read<DefaultCurrencyLogic>(),
+      )..add(SplashEvent.started()),
       child: MultiBlocListener(
         listeners: [
           BlocListener<SplashBloc, SplashState>(
@@ -33,6 +39,7 @@ class SplashScreen extends StatelessWidget {
               },
               builder: (context, state) {
                 final isLoading = state.isLoading;
+
                 if (isLoading) {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -61,11 +68,29 @@ class SplashScreen extends StatelessWidget {
                   );
                 }
 
-                return Center(
-                  child: Text(
-                    "App init successful.\nRedirecting..",
-                    textAlign: TextAlign.center,
-                  ),
+                return BlocBuilder<SplashBloc, SplashState>(
+                  buildWhen: (previous, current) => previous.currencies != current.currencies,
+                  builder: (context, state) {
+                    final currencies = state.currencies;
+
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 8,
+                      children: [
+                        Text(
+                          "Please select a default currency.",
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        for (final currency in currencies)
+                          ListTile(
+                            title: Text(currency.name),
+                            subtitle: Text(currency.code),
+                            onTap: () => context.read<SplashBloc>().add(SplashEvent.defaultCurrencySelected(currency)),
+                          )
+                      ],
+                    );
+                  },
                 );
               },
             ),
