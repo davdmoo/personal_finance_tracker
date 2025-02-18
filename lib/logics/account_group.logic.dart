@@ -53,4 +53,27 @@ class AccountGroupLogic {
 
     return updatedAccountGroup;
   }
+
+  Future<List<AccountGroup>> reorder(List<AccountGroup> accountGroups) async {
+    return await db.transaction<List<AccountGroup>>(
+      () async {
+        final List<AccountGroup> updatedAccountGroups = [];
+
+        for (int i = 0; i < accountGroups.length; i++) {
+          final accountGroup = accountGroups[i];
+          final data = AccountGroupsCompanion(order: drift.Value(i + 1));
+
+          final query = db.update(db.accountGroups)..where((t) => t.id.equals(accountGroup.id));
+          final result = await query.writeReturning(data);
+
+          final updatedAccountGroup = result.firstOrNull;
+          if (updatedAccountGroup == null) throw Exception("Failed while updating order.");
+
+          updatedAccountGroups.add(updatedAccountGroup);
+        }
+
+        return updatedAccountGroups;
+      },
+    );
+  }
 }
