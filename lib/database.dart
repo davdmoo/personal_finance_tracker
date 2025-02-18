@@ -305,7 +305,6 @@ class AppDatabase extends _$AppDatabase {
             currencies,
             [
               CurrenciesCompanion.insert(name: "Indonesian Rupiah", code: "IDR"),
-              CurrenciesCompanion.insert(name: "US Dollar", code: "USD"),
             ],
           );
         });
