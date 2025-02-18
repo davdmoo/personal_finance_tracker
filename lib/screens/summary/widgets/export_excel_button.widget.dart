@@ -5,18 +5,18 @@ import 'package:go_router/go_router.dart';
 import '../../../enums/time_range.enum.dart';
 import '../bloc/summary_bloc.dart';
 
-class DownloadExcelButton extends StatelessWidget {
-  const DownloadExcelButton({super.key});
+class ExportExcelButton extends StatelessWidget {
+  const ExportExcelButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SummaryBloc, SummaryState>(
-      buildWhen: (previous, current) => previous.isDownloading != current.isDownloading,
+      buildWhen: (previous, current) => previous.isExporting != current.isExporting,
       builder: (context, state) {
-        final isDownloading = state.isDownloading;
+        final isExporting = state.isExporting;
 
         return FilledButton(
-          onPressed: isDownloading
+          onPressed: isExporting
               ? null
               : () async {
                   final result = await showDialog<TimeRange>(
@@ -55,7 +55,7 @@ class DownloadExcelButton extends StatelessWidget {
                   );
                   context.read<SummaryBloc>().add(event);
                 },
-          child: Text(isDownloading ? "Downloading.." : "Download Excel"),
+          child: Text(isExporting ? "Exporting.." : "Export to Excel"),
         );
       },
     );

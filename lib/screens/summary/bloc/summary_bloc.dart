@@ -75,7 +75,7 @@ class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
 
   Future<void> _onDownloadExcelTriggered(_DownloadExcelTriggered event, Emitter<SummaryState> emit) async {
     try {
-      emit(state.copyWith(isDownloading: true, excelReport: null));
+      emit(state.copyWith(isExporting: true, excelReport: null));
 
       // request for permission for reading and writing to file storage
       late final Permission permission;
@@ -108,7 +108,7 @@ class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
         state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),
       );
     } finally {
-      emit(state.copyWith(isDownloading: false));
+      emit(state.copyWith(isExporting: false));
     }
   }
 }
