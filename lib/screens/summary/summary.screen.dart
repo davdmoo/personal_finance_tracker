@@ -6,7 +6,7 @@ import '../../logics/create_excel.logic.dart';
 import '../../logics/expense.logic.dart';
 import '../../logics/income.logic.dart';
 import 'bloc/summary_bloc.dart';
-import 'widgets/download_excel_button.widget.dart';
+import 'widgets/export_excel_button.widget.dart';
 import 'widgets/summary.widget.dart';
 
 class SummaryScreen extends StatelessWidget {
@@ -68,7 +68,7 @@ class SummaryScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: 8,
                     children: [
-                      DownloadExcelButton(),
+                      ExportExcelButton(),
                       Tooltip(
                         message: "Check your downloads folder",
                         child: Icon(Icons.info_outline, size: 20),
