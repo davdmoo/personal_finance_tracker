@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../database.dart';
+import '../../../logics/app_notification.logic.dart';
 import '../../../logics/currency.logic.dart';
 import '../../../logics/default_currency.logic.dart';
 
@@ -15,11 +17,13 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   final AppDatabase db;
   final DefaultCurrencyLogic defaultCurrencyLogic;
   final CurrencyLogic currencyLogic;
+  final AppNotification appNotificationLogic;
 
   SplashBloc({
     required this.db,
     required this.defaultCurrencyLogic,
     required this.currencyLogic,
+    required this.appNotificationLogic,
   }) : super(_SplashState()) {
     on<SplashEvent>(
       (events, emit) async {
@@ -34,6 +38,11 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   Future<void> _onStarted(_Started event, Emitter<SplashState> emit) async {
     try {
       emit(state.copyWith(isLoading: true));
+
+      // TODO: handle when user doesn't grant the notification (maybe by first showing the user if they want to be reminded to track transactions)
+      if (await Permission.notification.request().isGranted) {
+        await appNotificationLogic.init();
+      }
 
       await db.populateDatabase();
 
