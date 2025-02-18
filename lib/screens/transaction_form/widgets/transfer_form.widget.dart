@@ -33,8 +33,8 @@ class TransferFormWidgetState extends State<TransferFormWidget> {
 
     final transfer = populatedTransfer.transfer;
     _dateController.text = transfer.transactionDate.toIso8601String();
-    _amountController.text = transfer.amount.toString();
-    _feeController.text = transfer.fee.toString();
+    _amountController.text = transfer.amount.toInt().toString();
+    _feeController.text = transfer.fee.toInt().toString();
     _noteController.text = transfer.note;
 
     _selectedOrigin = populatedTransfer.accountOrigin;
@@ -75,16 +75,37 @@ class TransferFormWidgetState extends State<TransferFormWidget> {
                   _dateController.text = date.toIso8601String();
                 });
               },
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                if (value == null || value.isEmpty) return "This field is required";
+                return null;
+              },
             ),
             TextFormField(
               controller: _amountController,
               decoration: InputDecoration(label: Text("Amount")),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                if (value == null || value.isEmpty) return "This field is required";
+
+                final parsed = double.tryParse(value);
+                if (parsed == null) return "Invalid format";
+                return null;
+              },
             ),
             TextFormField(
               controller: _feeController,
               decoration: InputDecoration(label: Text("Fee")),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                if (value == null || value.isEmpty) return "This field is required";
+
+                final parsed = double.tryParse(value);
+                if (parsed == null) return "Invalid format";
+                return null;
+              },
             ),
             BlocBuilder<TransactionFormBloc, TransactionFormState>(
               buildWhen: (previous, current) => previous.accounts != current.accounts,

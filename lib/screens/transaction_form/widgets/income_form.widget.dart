@@ -32,7 +32,7 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
 
     final income = populatedIncome.income;
     _dateController.text = income.transactionDate.toIso8601String();
-    _amountController.text = income.amount.toString();
+    _amountController.text = income.amount.toInt().toString();
     _noteController.text = income.note;
 
     _selectedAccount = populatedIncome.account;
@@ -73,11 +73,24 @@ class IncomeFormWidgetState extends State<IncomeFormWidget> {
                   _dateController.text = date.toIso8601String();
                 });
               },
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                if (value == null || value.isEmpty) return "This field is required.";
+                return null;
+              },
             ),
             TextFormField(
               controller: _amountController,
               decoration: InputDecoration(label: Text("Amount")),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                if (value == null || value.isEmpty) return "This field is required";
+
+                final parsed = double.tryParse(value);
+                if (parsed == null) return "Invalid format";
+                return null;
+              },
             ),
             BlocBuilder<TransactionFormBloc, TransactionFormState>(
               buildWhen: (previous, current) => previous.accounts != current.accounts,
