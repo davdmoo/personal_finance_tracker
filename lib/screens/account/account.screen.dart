@@ -41,7 +41,10 @@ class AccountScreen extends StatelessWidget {
                 );
               },
               itemCount: accounts.length,
-              onReorder: (oldIndex, newIndex) {},
+              onReorder: (oldIndex, newIndex) {
+                final event = AccountEvent.reordered(oldIndex: oldIndex, newIndex: newIndex);
+                context.read<AccountBloc>().add(event);
+              },
             );
           },
         ),
