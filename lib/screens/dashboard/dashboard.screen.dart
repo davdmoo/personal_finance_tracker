@@ -6,7 +6,7 @@ import '../../logics/income.logic.dart';
 import 'bloc/dashboard_bloc.dart';
 import 'widgets/categorized_expense.widget.dart';
 import 'widgets/categorized_income.widget.dart';
-import 'widgets/monthly_expense_trend.widget.dart';
+import 'widgets/expense_trend_bar_chart.widget.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});

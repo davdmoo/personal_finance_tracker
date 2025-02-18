@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../enums/time_range.enum.dart';
 import 'date_time.extensions.dart';
@@ -22,5 +23,13 @@ extension DateTimeRangeExt on DateTimeRange {
       default:
         return "All Time";
     }
+  }
+
+  String get excelReportFileName {
+    final start = this.start;
+    final end = this.end;
+
+    final dateFormat = DateFormat("dd-MM-yyyy", "id_ID");
+    return "${dateFormat.format(start)}_to_${dateFormat.format(end)}";
   }
 }

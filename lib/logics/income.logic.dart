@@ -8,14 +8,19 @@ class IncomeLogic {
   final AppDatabase db;
   const IncomeLogic(this.db);
 
-  Future<List<PopulatedIncome>> findAll() async {
-    final selectIncomeStatement = db.select(db.incomes).join([
+  Future<List<PopulatedIncome>> findAll({DateTimeRange? dateRange}) async {
+    var query = db.select(db.incomes).join([
       drift.leftOuterJoin(db.incomeCategories, db.incomeCategories.id.equalsExp(db.incomes.categoryId)),
       drift.leftOuterJoin(db.accounts, db.accounts.id.equalsExp(db.incomes.accountId)),
       drift.leftOuterJoin(db.currencies, db.currencies.id.equalsExp(db.incomes.currencyId)),
     ])
       ..orderBy([drift.OrderingTerm(expression: db.incomes.transactionDate, mode: drift.OrderingMode.desc)]);
-    final incomes = await selectIncomeStatement.map((row) {
+
+    if (dateRange != null) {
+      query = query..where(db.incomes.transactionDate.isBetweenValues(dateRange.start, dateRange.end));
+    }
+
+    final incomes = await query.map((row) {
       final income = row.readTable(db.incomes);
       final category = row.readTableOrNull(db.incomeCategories);
       final account = row.readTableOrNull(db.accounts);

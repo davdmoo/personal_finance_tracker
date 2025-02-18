@@ -9,14 +9,19 @@ class ExpenseLogic {
   final AppDatabase db;
   const ExpenseLogic(this.db);
 
-  Future<List<PopulatedExpense>> findAll() async {
-    final selectExpenseStatement = db.select(db.expenses).join([
+  Future<List<PopulatedExpense>> findAll({DateTimeRange? dateRange}) async {
+    var query = db.select(db.expenses).join([
       drift.leftOuterJoin(db.expenseCategories, db.expenseCategories.id.equalsExp(db.expenses.categoryId)),
       drift.leftOuterJoin(db.accounts, db.accounts.id.equalsExp(db.expenses.accountId)),
       drift.leftOuterJoin(db.currencies, db.currencies.id.equalsExp(db.expenses.currencyId)),
     ])
       ..orderBy([drift.OrderingTerm(expression: db.expenses.transactionDate, mode: drift.OrderingMode.desc)]);
-    final expenses = await selectExpenseStatement.map((row) {
+
+    if (dateRange != null) {
+      query = query..where(db.expenses.transactionDate.isBetweenValues(dateRange.start, dateRange.end));
+    }
+
+    final expenses = await query.map((row) {
       final expense = row.readTable(db.expenses);
       final category = row.readTableOrNull(db.expenseCategories);
       final account = row.readTableOrNull(db.accounts);
