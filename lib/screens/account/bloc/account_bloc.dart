@@ -17,6 +17,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     on<AccountEvent>((events, emit) async {
       await events.map<FutureOr<void>>(
         started: (event) async => await _onStarted(event, emit),
+        reordered: (event) async => await _onReordered(event, emit),
       );
     });
   }
@@ -29,6 +30,38 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
 
       final List<AccountBalance> balancedAccounts = [];
       for (final account in accounts) {
+        final totalBalance = await accountLogic.getAccountBalance(account);
+        balancedAccounts.add(AccountBalance(account: account, balance: totalBalance));
+      }
+
+      emit(state.copyWith(accounts: balancedAccounts));
+    } catch (err) {
+      emit(
+        state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),
+      );
+    } finally {
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
+  Future<void> _onReordered(_Reordered event, Emitter<AccountState> emit) async {
+    try {
+      emit(state.copyWith(isLoading: true));
+
+      final oldIndex = event.oldIndex;
+      int newIndex = event.newIndex;
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+
+      final accounts = [...state.accounts];
+      final movedCategory = accounts.removeAt(oldIndex);
+      accounts.insert(newIndex, movedCategory);
+      emit(state.copyWith(accounts: accounts)); // emit for local state so the list doesnt "flicker"
+
+      final updatedAccounts = await accountLogic.reorder(accounts.map((el) => el.account).toList());
+      final List<AccountBalance> balancedAccounts = [];
+      for (final account in updatedAccounts) {
         final totalBalance = await accountLogic.getAccountBalance(account);
         balancedAccounts.add(AccountBalance(account: account, balance: totalBalance));
       }

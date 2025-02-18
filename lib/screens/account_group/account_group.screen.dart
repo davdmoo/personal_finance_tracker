@@ -38,7 +38,10 @@ class AccountGroupScreen extends StatelessWidget {
                 );
               },
               itemCount: accountGroups.length,
-              onReorder: (oldIndex, newIndex) {},
+              onReorder: (oldIndex, newIndex) {
+                final event = AccountGroupEvent.reordered(oldIndex: oldIndex, newIndex: newIndex);
+                context.read<AccountGroupBloc>().add(event);
+              },
             );
           },
         ),

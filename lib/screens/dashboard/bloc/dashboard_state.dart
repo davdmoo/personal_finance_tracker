@@ -26,6 +26,6 @@ class DashboardState with _$DashboardState {
     final copied = [...monthlyTotalExpenses];
     copied.sort((a, b) => (a.amount - b.amount).toInt());
 
-    return copied.first.amount;
+    return copied.firstOrNull?.amount ?? 0;
   }
 }

@@ -8,7 +8,8 @@ class IncomeCategoryLogic {
   const IncomeCategoryLogic(this.db);
 
   Future<List<IncomeCategory>> findAll() async {
-    return await db.select(db.incomeCategories).get();
+    final query = db.select(db.incomeCategories)..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
+    return await query.get();
   }
 
   Future<IncomeCategory> create({
@@ -55,5 +56,28 @@ class IncomeCategoryLogic {
     }
 
     return updatedCategory;
+  }
+
+  Future<List<IncomeCategory>> reorder(List<IncomeCategory> categories) async {
+    return await db.transaction<List<IncomeCategory>>(
+      () async {
+        final List<IncomeCategory> updatedCategories = [];
+
+        for (int i = 0; i < categories.length; i++) {
+          final category = categories[i];
+          final data = IncomeCategoriesCompanion(order: drift.Value(i + 1));
+
+          final query = db.update(db.incomeCategories)..where((t) => t.id.equals(category.id));
+          final result = await query.writeReturning(data);
+
+          final updatedCategory = result.firstOrNull;
+          if (updatedCategory == null) throw Exception("Failed while updating order.");
+
+          updatedCategories.add(updatedCategory);
+        }
+
+        return updatedCategories;
+      },
+    );
   }
 }
