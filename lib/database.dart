@@ -10,7 +10,7 @@ class ExpenseCategories extends Table {
   late final IntColumn id = integer().autoIncrement()();
   late final TextColumn name = text().withLength(min: 1, max: 255)();
   late final TextColumn description = text().withLength(min: 0, max: 255).nullable()();
-  late final IntColumn order = integer().unique()();
+  late final IntColumn order = integer()();
   late final DateTimeColumn createdAt = dateTime().withDefault(currentDateAndTime)();
   late final DateTimeColumn updatedAt = dateTime().withDefault(currentDateAndTime)();
 }
@@ -19,7 +19,7 @@ class IncomeCategories extends Table {
   late final IntColumn id = integer().autoIncrement()();
   late final TextColumn name = text().withLength(min: 1, max: 255)();
   late final TextColumn description = text().withLength(min: 0, max: 255).nullable()();
-  late final IntColumn order = integer().unique()();
+  late final IntColumn order = integer()();
   late final DateTimeColumn createdAt = dateTime().withDefault(currentDateAndTime)();
   late final DateTimeColumn updatedAt = dateTime().withDefault(currentDateAndTime)();
 }
@@ -35,7 +35,7 @@ class Currencies extends Table {
 class AccountGroups extends Table {
   late final IntColumn id = integer().autoIncrement()();
   late final TextColumn name = text().withLength(min: 1, max: 255).unique()();
-  late final IntColumn order = integer().unique()();
+  late final IntColumn order = integer()();
   late final DateTimeColumn createdAt = dateTime().withDefault(currentDateAndTime)();
   late final DateTimeColumn updatedAt = dateTime().withDefault(currentDateAndTime)();
 }
@@ -49,7 +49,7 @@ class Accounts extends Table {
     onUpdate: KeyAction.cascade,
   )();
   late final TextColumn name = text().withLength(min: 1, max: 255).unique()();
-  late final IntColumn order = integer().unique()();
+  late final IntColumn order = integer()();
   late final DateTimeColumn createdAt = dateTime().withDefault(currentDateAndTime)();
   late final DateTimeColumn updatedAt = dateTime().withDefault(currentDateAndTime)();
 }
