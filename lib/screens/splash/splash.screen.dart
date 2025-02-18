@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../database.dart';
+import '../../logics/app_notification.logic.dart';
 import '../../logics/currency.logic.dart';
 import '../../logics/default_currency.logic.dart';
 import '../../routes.dart';
@@ -17,6 +18,7 @@ class SplashScreen extends StatelessWidget {
         db: context.read<AppDatabase>(),
         currencyLogic: context.read<CurrencyLogic>(),
         defaultCurrencyLogic: context.read<DefaultCurrencyLogic>(),
+        appNotificationLogic: context.read<AppNotification>(),
       )..add(SplashEvent.started()),
       child: MultiBlocListener(
         listeners: [

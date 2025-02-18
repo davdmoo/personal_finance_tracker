@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'database.dart';
 import 'logics/account.logic.dart';
 import 'logics/account_group.logic.dart';
+import 'logics/app_notification.logic.dart';
 import 'logics/budget.logic.dart';
 import 'logics/create_excel.logic.dart';
 import 'logics/currency.logic.dart';
@@ -66,6 +67,9 @@ void main() async {
         ),
         RepositoryProvider(
           create: (context) => DefaultCurrencyLogic(),
+        ),
+        RepositoryProvider(
+          create: (context) => AppNotification(),
         ),
       ],
       child: const FinanceTracker(),
