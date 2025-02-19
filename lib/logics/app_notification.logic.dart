@@ -1,9 +1,12 @@
 import 'dart:convert';
-import 'dart:developer';
 
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -24,9 +27,6 @@ class AppNotification {
 
     await _notificationsPlugin.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: (details) {
-        inspect(details);
-      },
     );
   }
 
@@ -41,7 +41,10 @@ class AppNotification {
       'Finance Tracker',
       importance: Importance.high,
       priority: Priority.high,
-      icon: "@mipmap/ic_launcher",
+      icon: "@mipmap/launcher_icon",
+      silent: false,
+      playSound: true,
+      enableVibration: true,
     );
 
     final notificationDetails = NotificationDetails(android: androidDetails);
@@ -55,11 +58,11 @@ class AppNotification {
 
   Future<void> scheduleNotification(List<NotificationSchedule> schedules) async {
     final androidDetails = AndroidNotificationDetails(
-      "daily_notification_channel_id",
-      'Daily Notification',
-      importance: Importance.min,
-      priority: Priority.min,
-      icon: "@mipmap/ic_launcher",
+      "daily_reminder_id",
+      'Daily Reminder',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+      icon: "@mipmap/launcher_icon",
     );
 
     final notificationDetails = NotificationDetails(android: androidDetails);
@@ -130,5 +133,43 @@ class AppNotification {
 
     await scheduleNotification(schedules);
     await prefs.setStringList(scheduleKey, value.map((el) => el.toJson()).toList());
+  }
+
+  Future<void> clearSchedules() async {
+    return await _notificationsPlugin.cancelAll();
+  }
+
+  Future<void> requestPermissions() async {
+    final notifPermission = await Permission.notification.request();
+    if (notifPermission.isPermanentlyDenied) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        final packageInfo = await PackageInfo.fromPlatform();
+
+        final intent = AndroidIntent(
+          action: "android.settings.APP_NOTIFICATION_SETTINGS",
+          flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+          arguments: {
+            'android.provider.extra.APP_PACKAGE': packageInfo.packageName,
+          },
+        );
+
+        await intent.launch();
+      }
+    }
+
+    if (!notifPermission.isGranted) {
+      throw Exception("You have to allow notifications first");
+    }
+
+    final exactAlarmPermission = await Permission.scheduleExactAlarm.request();
+    if (exactAlarmPermission.isDenied || exactAlarmPermission.isPermanentlyDenied) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        await AndroidFlutterLocalNotificationsPlugin().requestExactAlarmsPermission();
+      }
+    }
+
+    if (!exactAlarmPermission.isGranted) {
+      throw Exception("You have to allow the permission first");
+    }
   }
 }
