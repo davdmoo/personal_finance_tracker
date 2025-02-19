@@ -7,21 +7,27 @@ class SettingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, VoidCallback> routes = {
+      "Account Groups": () => AccountGroupRoute().push(context),
+      "Accounts": () => AccountRoute().push(context),
+      "Expense Categories": () => ExpenseCategoryRoute().push(context),
+      "Income Categories": () => IncomeCategoryRoute().push(context),
+      "Budgets": () => BudgetRoute().push(context),
+      "App Notifications": () => NotificationSettingRoute().push(context),
+    };
+
     return Scaffold(
       appBar: AppBar(title: Text("Settings")),
-      body: SizedBox(
-        width: double.maxFinite,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 16,
-          children: [
-            ElevatedButton(onPressed: () => AccountGroupRoute().push(context), child: Text("Account Groups")),
-            ElevatedButton(onPressed: () => AccountRoute().push(context), child: Text("Accounts")),
-            ElevatedButton(onPressed: () => ExpenseCategoryRoute().push(context), child: Text("Expense Categories")),
-            ElevatedButton(onPressed: () => IncomeCategoryRoute().push(context), child: Text("Income Categories")),
-            ElevatedButton(onPressed: () => BudgetRoute().push(context), child: Text("Budgets")),
-          ],
-        ),
+      body: ListView.separated(
+        itemCount: routes.length,
+        itemBuilder: (BuildContext context, int index) {
+          final route = routes.entries.elementAt(index);
+          return ListTile(
+            title: Text(route.key),
+            onTap: route.value,
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) => Divider(height: 0),
       ),
     );
   }
