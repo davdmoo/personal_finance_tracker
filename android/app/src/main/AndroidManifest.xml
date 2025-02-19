@@ -37,6 +37,7 @@
     <!--To reschedule notifications after device reboots-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!--File storage permission for android 13 and below-->
