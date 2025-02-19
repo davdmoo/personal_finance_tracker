@@ -10,6 +10,7 @@ import 'screens/dashboard/dashboard.screen.dart';
 import 'screens/expense_category/expense_category.screen.dart';
 import 'screens/home/home.screen.dart';
 import 'screens/income_category/income_category.screen.dart';
+import 'screens/notification_setting/notification_setting.screen.dart';
 import 'screens/splash/splash.screen.dart';
 import 'screens/transaction_form/transaction_form.screen.dart';
 
@@ -164,5 +165,18 @@ class DashboardRoute extends GoRouteData {
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return const NoTransitionPage(child: DashboardScreen());
+  }
+}
+
+@TypedGoRoute<NotificationSettingRoute>(path: NotificationSettingRoute.path, name: NotificationSettingRoute.name)
+@immutable
+class NotificationSettingRoute extends GoRouteData {
+  static const path = "/notifications", name = "notifications";
+
+  const NotificationSettingRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return const NoTransitionPage(child: NotificationSettingScreen());
   }
 }

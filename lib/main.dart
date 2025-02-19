@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 
 import 'database.dart';
 import 'logics/account.logic.dart';
 import 'logics/account_group.logic.dart';
+import 'logics/app_notification.logic.dart';
 import 'logics/budget.logic.dart';
 import 'logics/create_excel.logic.dart';
 import 'logics/currency.logic.dart';
@@ -20,6 +22,8 @@ import 'routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
+
+  tz.initializeTimeZones();
 
   runApp(
     MultiRepositoryProvider(
@@ -66,6 +70,9 @@ void main() async {
         ),
         RepositoryProvider(
           create: (context) => DefaultCurrencyLogic(),
+        ),
+        RepositoryProvider(
+          create: (context) => AppNotification(),
         ),
       ],
       child: const FinanceTracker(),
