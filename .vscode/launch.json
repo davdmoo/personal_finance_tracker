@@ -1,0 +1,34 @@
+{
+  "configurations": [
+    {
+      "name": "Launch",
+      "type": "dart",
+      "request": "launch",
+      "args": [
+        "--${input:mode}"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "mode",
+      "type": "pickString",
+      "options": [
+        {
+          "label": "Debug",
+          "value": "debug"
+        },
+        {
+          "label": "Profile",
+          "value": "profile"
+        },
+        {
+          "label": "Release",
+          "value": "release"
+        }
+      ],
+      "default": "debug",
+      "description": "Select mode"
+    }
+  ]
+}
