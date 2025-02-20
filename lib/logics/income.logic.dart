@@ -111,4 +111,9 @@ class IncomeLogic {
 
     return updatedIncome;
   }
+
+  Future<void> deleteById(int id) async {
+    final query = db.delete(db.incomes)..where((tbl) => tbl.id.equals(id));
+    await query.go();
+  }
 }

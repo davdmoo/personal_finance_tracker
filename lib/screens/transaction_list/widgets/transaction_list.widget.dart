@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../database.dart';
-import '../../../extensions/date_time.extensions.dart';
-import '../../../extensions/double.extension.dart';
 import '../../../logics/expense.logic.dart';
 import '../../../logics/income.logic.dart';
 import '../../../logics/transfer.logic.dart';
 import '../../../routes.dart';
 import '../../transaction_form/transaction_form.screen.dart';
 import '../bloc/transaction_list_bloc.dart';
+import 'expense_item.widget.dart';
+import 'income_item.widget.dart';
+import 'transfer_item.wiget.dart';
 
 class _TransactionListSelectorState {
   final List<PopulatedExpense> expenses;
@@ -74,63 +75,9 @@ class TransactionListWidget extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = data[index];
 
-                if (item is PopulatedExpense) {
-                  return ListTile(
-                    title: Text(item.expense.note),
-                    subtitle: Text(item.expense.transactionDate.dateTimeLocaleIdShort),
-                    trailing: Text(item.expense.amount.currency),
-                    onTap: () async {
-                      final result = await TransactionFormRoute(
-                        tab: TransactionFormTab.expense,
-                        $extra: TransactionFormRouteExtra(populatedExpense: item),
-                      ).push(context);
-                      if (result == null || !context.mounted || result == false) return;
-
-                      context.read<TransactionListBloc>().add(TransactionListEvent.started());
-                    },
-                  );
-                }
-
-                if (item is PopulatedIncome) {
-                  return ListTile(
-                    title: Text(item.income.note),
-                    subtitle: Text(item.income.transactionDate.dateTimeLocaleIdShort),
-                    trailing: Text(item.income.amount.currency),
-                    onTap: () async {
-                      final result = await TransactionFormRoute(
-                        $extra: TransactionFormRouteExtra(populatedIncome: item),
-                        tab: TransactionFormTab.income,
-                      ).push(context);
-                      if (result == null || !context.mounted || result == false) return;
-
-                      context.read<TransactionListBloc>().add(TransactionListEvent.started());
-                    },
-                  );
-                }
-
-                if (item is PopulatedTransfer) {
-                  return ListTile(
-                    title: Text(item.transfer.note),
-                    subtitle: Text(item.transfer.transactionDate.dateTimeLocaleIdShort),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(item.transfer.amount.currency),
-                        Text("Fee: ${item.transfer.fee.currency}", style: TextStyle(fontSize: 11)),
-                      ],
-                    ),
-                    onTap: () async {
-                      final result = await TransactionFormRoute(
-                        tab: TransactionFormTab.transfer,
-                        $extra: TransactionFormRouteExtra(populatedTransfer: item),
-                      ).push(context);
-                      if (result == null || !context.mounted || result == false) return;
-
-                      context.read<TransactionListBloc>().add(TransactionListEvent.started());
-                    },
-                  );
-                }
+                if (item is PopulatedExpense) return ExpenseItemWidget(item: item);
+                if (item is PopulatedIncome) return IncomeItemWidget(item: item);
+                if (item is PopulatedTransfer) return TransferItemWidget(item: item);
 
                 return SizedBox.shrink();
               },
