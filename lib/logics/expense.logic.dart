@@ -162,4 +162,9 @@ class ExpenseLogic {
 
     return updatedExpense;
   }
+
+  Future<void> deleteById(int id) async {
+    final query = db.delete(db.expenses)..where((tbl) => tbl.id.equals(id));
+    await query.go();
+  }
 }

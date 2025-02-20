@@ -93,4 +93,9 @@ class TransferLogic {
 
     return await db.into(db.transfers).insertReturning(data);
   }
+
+  Future<void> deleteById(int id) async {
+    final query = db.delete(db.transfers)..where((tbl) => tbl.id.equals(id));
+    await query.go();
+  }
 }
