@@ -1,9 +1,12 @@
 # Getting Started
 
+## Project Notes
+1. Some features i.e. notifications and reminders currently only works for Android
+
 ## Prerequisites
 1. Install Flutter (this project uses [fvm](https://fvm.app/))
 
-## Development (Note: some features i.e. notifications currently only works for Android)
+## Development
 1. Run the command below to generate necessary codes
    ```shell
     dart run build_runner build
