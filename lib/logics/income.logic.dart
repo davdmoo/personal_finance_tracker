@@ -2,11 +2,27 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 
 import '../database.dart';
+import '../extensions/date_time.extensions.dart';
 import '../models/categorized_income.model.dart';
 
 class IncomeLogic {
   final AppDatabase db;
   const IncomeLogic(this.db);
+
+  Map<DateTime, List<PopulatedIncome>> mapIncomesByDate(List<PopulatedIncome> incomes) {
+    final Map<DateTime, List<PopulatedIncome>> mappedIncomes = {};
+
+    for (final item in incomes) {
+      final date = item.income.transactionDate.startOfDay;
+      if (mappedIncomes[date] == null) {
+        mappedIncomes[date] = [item];
+      } else {
+        mappedIncomes[date]?.add(item);
+      }
+    }
+
+    return mappedIncomes;
+  }
 
   Future<List<PopulatedIncome>> findAll({DateTimeRange? dateRange}) async {
     var query = db.select(db.incomes).join([

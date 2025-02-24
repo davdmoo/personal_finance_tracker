@@ -2,10 +2,26 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 
 import '../database.dart';
+import '../extensions/date_time.extensions.dart';
 
 class TransferLogic {
   final AppDatabase db;
   const TransferLogic(this.db);
+
+  Map<DateTime, List<PopulatedTransfer>> mapTransfersByDate(List<PopulatedTransfer> transfers) {
+    final Map<DateTime, List<PopulatedTransfer>> mappedTransfers = {};
+
+    for (final item in transfers) {
+      final date = item.transfer.transactionDate.startOfDay;
+      if (mappedTransfers[date] == null) {
+        mappedTransfers[date] = [item];
+      } else {
+        mappedTransfers[date]?.add(item);
+      }
+    }
+
+    return mappedTransfers;
+  }
 
   Future<List<PopulatedTransfer>> findAll({DateTimeRange? dateRange}) async {
     final accountOriginAlias = db.alias(db.accounts, "origin");
@@ -22,7 +38,7 @@ class TransferLogic {
       ..orderBy([drift.OrderingTerm(expression: db.transfers.transactionDate, mode: drift.OrderingMode.desc)]);
 
     if (dateRange != null) {
-      query = query..where(db.expenses.transactionDate.isBetweenValues(dateRange.start, dateRange.end));
+      query = query..where(db.transfers.transactionDate.isBetweenValues(dateRange.start, dateRange.end));
     }
 
     final transfers = await query.map((row) {

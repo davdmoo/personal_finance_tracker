@@ -100,6 +100,7 @@ class FinanceTracker extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         textTheme: TextTheme(
           labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+          bodyMedium: TextStyle(fontSize: 12),
         ),
       ),
       routerConfig: router,
