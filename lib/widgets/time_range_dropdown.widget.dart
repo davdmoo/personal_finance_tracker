@@ -20,6 +20,10 @@ class TimeRangeDropdown extends StatelessWidget {
       initialSelection: selected,
       dropdownMenuEntries: items,
       onSelected: onSelected,
+      inputDecorationTheme: Theme.of(context).dropdownMenuTheme.inputDecorationTheme?.copyWith(
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+          ),
     );
   }
 }

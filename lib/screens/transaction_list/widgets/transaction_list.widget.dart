@@ -2,22 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../database.dart';
+import '../../../enums/time_range.enum.dart';
 import '../../../logics/expense.logic.dart';
 import '../../../logics/income.logic.dart';
 import '../../../logics/transfer.logic.dart';
 import '../../../routes.dart';
 import '../../transaction_form/transaction_form.screen.dart';
 import '../bloc/transaction_list_bloc.dart';
-import 'expense_item.widget.dart';
-import 'income_item.widget.dart';
-import 'transfer_item.wiget.dart';
+import 'daily_transaction_list.widget.dart';
+import 'empty_transaction_list.widget.dart';
+import 'transaction_list_header.widget.dart';
+import 'transaction_summary.widget.dart';
 
 class _TransactionListSelectorState {
-  final List<PopulatedExpense> expenses;
-  final List<PopulatedIncome> incomes;
-  final List<PopulatedTransfer> transfers;
+  final Map<DateTime, List<Object>> allTransactions;
+  final TimeRange timeRange;
+  final DateTimeRange? dateTimeRange;
 
-  const _TransactionListSelectorState({required this.expenses, required this.incomes, required this.transfers});
+  const _TransactionListSelectorState({
+    required this.allTransactions,
+    required this.timeRange,
+    this.dateTimeRange,
+  });
 }
 
 class TransactionListWidget extends StatelessWidget {
@@ -34,53 +40,35 @@ class TransactionListWidget extends StatelessWidget {
       child: Scaffold(
         body: BlocSelector<TransactionListBloc, TransactionListState, _TransactionListSelectorState>(
           selector: (state) => _TransactionListSelectorState(
-            expenses: state.expenses,
-            incomes: state.incomes,
-            transfers: state.transfers,
+            allTransactions: state.allTransactions,
+            timeRange: state.timeRange,
+            dateTimeRange: state.customDateRange,
           ),
           builder: (context, state) {
-            final expenses = state.expenses;
-            final incomes = state.incomes;
-            final transfers = state.transfers;
+            final timeRange = state.timeRange;
+            final dateTimeRange = state.dateTimeRange ?? timeRange.dateRange;
 
-            final data = [...expenses, ...incomes, ...transfers];
-            if (data.isEmpty) {
-              return SizedBox(
-                width: double.maxFinite,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Your transaction is empty.", style: TextStyle(fontSize: 16)),
-                    TextButton(
-                      child: Text("Add a transaction here"),
-                      onPressed: () async {
-                        final result = await TransactionFormRoute(
-                          tab: TransactionFormTab.expense,
-                        ).push<Object>(context);
-                        if (result == null || !context.mounted) return;
+            final data = state.allTransactions;
+            return Column(
+              spacing: 8,
+              children: [
+                TransactionListHeaderWidget(dateTimeRange: dateTimeRange, timeRange: timeRange),
+                TransactionSummaryWidget(),
+                Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      if (data.isEmpty) return EmptyTransactionListWidget();
 
-                        if (result is Expense || result is Transfer || result is Income) {
-                          context.read<TransactionListBloc>().add(TransactionListEvent.started());
-                        }
-                      },
-                    ),
-                  ],
+                      return ListView.builder(
+                        itemCount: data.length,
+                        itemBuilder: (context, index) => DailyTransactionListWidget(
+                          transaction: data.entries.elementAt(index),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              );
-            }
-
-            return ListView.separated(
-              separatorBuilder: (context, index) => Divider(height: 0),
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                final item = data[index];
-
-                if (item is PopulatedExpense) return ExpenseItemWidget(item: item);
-                if (item is PopulatedIncome) return IncomeItemWidget(item: item);
-                if (item is PopulatedTransfer) return TransferItemWidget(item: item);
-
-                return SizedBox.shrink();
-              },
+              ],
             );
           },
         ),
