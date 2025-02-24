@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../database.dart';
-import '../../../extensions/date_time.extensions.dart';
 import '../../../extensions/double.extension.dart';
 import '../../../routes.dart';
 import '../../transaction_form/transaction_form.screen.dart';
@@ -37,14 +36,15 @@ class IncomeItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.only(left: 16),
-      title: Text(item.income.note),
-      subtitle: Text(item.income.transactionDate.dateTimeLocaleIdShort),
       trailing: Row(
         spacing: 8,
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(item.income.amount.currency),
+          Text(
+            item.income.amount.currency,
+            style: TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.normal),
+          ),
           PopupMenuButton(
             padding: EdgeInsets.zero,
             itemBuilder: (context) => [
@@ -57,6 +57,27 @@ class IncomeItemWidget extends StatelessWidget {
                   context.read<TransactionListBloc>().add(TransactionListEvent.incomeDeleted(item.income.id));
                 },
               )
+            ],
+          ),
+        ],
+      ),
+      subtitle: Row(
+        spacing: 8,
+        children: [
+          SizedBox(
+            width: 60,
+            child: Text(
+              item.category?.name ?? "-",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(item.income.note.isEmpty ? "-" : item.income.note),
+              Text(item.account?.name ?? "-"),
             ],
           ),
         ],
