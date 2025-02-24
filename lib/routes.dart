@@ -5,7 +5,6 @@ import 'database.dart';
 import 'screens/account/account.screen.dart';
 import 'screens/account_group/account_group.screen.dart';
 import 'screens/budget/budget.screen.dart';
-import 'screens/currency/currency.screen.dart';
 import 'screens/dashboard/dashboard.screen.dart';
 import 'screens/expense_category/expense_category.screen.dart';
 import 'screens/home/home.screen.dart';
@@ -66,13 +65,23 @@ class TransactionFormRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return NoTransitionPage(
+    return CustomTransitionPage(
       child: TransactionFormScreen(
         tab: tab,
         populatedExpense: $extra?.populatedExpense,
         populatedIncome: $extra?.populatedIncome,
         populatedTransfer: $extra?.populatedTransfer,
       ),
+      transitionDuration: Duration(milliseconds: 300),
+      reverseTransitionDuration: Duration(milliseconds: 300),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
     );
   }
 }
@@ -86,7 +95,17 @@ class ExpenseCategoryRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: ExpenseCategoryScreen());
+    return CustomTransitionPage(
+      child: ExpenseCategoryScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
   }
 }
 
@@ -99,7 +118,17 @@ class IncomeCategoryRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: IncomeCategoryScreen());
+    return CustomTransitionPage(
+      child: IncomeCategoryScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
   }
 }
 
@@ -112,7 +141,17 @@ class AccountGroupRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: AccountGroupScreen());
+    return CustomTransitionPage(
+      child: AccountGroupScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
   }
 }
 
@@ -125,7 +164,17 @@ class AccountRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: AccountScreen());
+    return CustomTransitionPage(
+      child: AccountScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
   }
 }
 
@@ -138,7 +187,17 @@ class CurrencyRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: CurrencyScreen());
+    return CustomTransitionPage(
+      child: AccountScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
   }
 }
 
@@ -151,7 +210,17 @@ class BudgetRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: BudgetScreen());
+    return CustomTransitionPage(
+      child: BudgetScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
   }
 }
 
@@ -164,7 +233,17 @@ class DashboardRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: DashboardScreen());
+    return CustomTransitionPage(
+      child: DashboardScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
   }
 }
 
@@ -177,6 +256,16 @@ class NotificationSettingRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return const NoTransitionPage(child: NotificationSettingScreen());
+    return CustomTransitionPage(
+      child: NotificationSettingScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
   }
 }

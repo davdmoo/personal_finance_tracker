@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../database.dart';
+import '../../../enums/time_range.enum.dart';
+import '../../../extensions/date_time.extensions.dart';
 import '../../../logics/expense.logic.dart';
 import '../../../logics/income.logic.dart';
 import '../../../logics/transfer.logic.dart';
@@ -28,6 +31,7 @@ class TransactionListBloc extends Bloc<TransactionListEvent, TransactionListStat
         expenseDeleted: (event) async => await _onExpenseDeleted(event, emit),
         incomeDeleted: (event) async => await _onIncomeDeleted(event, emit),
         transferDeleted: (event) async => await _onTransferDeleted(event, emit),
+        timeRangeChanged: (event) => _onTimeRangeChanged(event, emit),
       );
     });
   }
@@ -36,11 +40,57 @@ class TransactionListBloc extends Bloc<TransactionListEvent, TransactionListStat
     try {
       emit(state.copyWith(isLoading: true));
 
-      final expenses = await expenseLogic.findAll();
-      final incomes = await incomeLogic.findAll();
-      final transfers = await transferLogic.findAll();
+      DateTimeRange? dateRange = state.customDateRange;
+      if (state.timeRange == TimeRange.custom) {
+        if (dateRange == null) throw Exception("You must pick a date range");
+      } else {
+        dateRange = state.timeRange.dateRange;
+      }
 
-      emit(state.copyWith(expenses: expenses, incomes: incomes, transfers: transfers));
+      final expenses = await expenseLogic.findAll(dateRange: dateRange);
+      final mappedExpenses = expenseLogic.mapExpensesByDate(expenses);
+
+      final incomes = await incomeLogic.findAll(dateRange: dateRange);
+      final mappedIncomes = incomeLogic.mapIncomesByDate(incomes);
+
+      final transfers = await transferLogic.findAll(dateRange: dateRange);
+      final mappedTransfers = transferLogic.mapTransfersByDate(transfers);
+
+      final Map<DateTime, List<Object>> allTransactions = {};
+      for (final item in mappedExpenses.entries) {
+        final date = item.key.startOfDay;
+        final value = item.value;
+
+        allTransactions[date] = [...allTransactions[date] ?? [], ...value];
+      }
+
+      for (final item in mappedIncomes.entries) {
+        final date = item.key.startOfDay;
+        final value = item.value;
+
+        allTransactions[date] = [...allTransactions[date] ?? [], ...value];
+      }
+
+      for (final item in mappedTransfers.entries) {
+        final date = item.key.startOfDay;
+        final value = item.value;
+
+        allTransactions[date] = [...allTransactions[date] ?? [], ...value];
+      }
+
+      final totalIncome = await incomeLogic.findTotalIncome(dateRange);
+      final totalExpense = await expenseLogic.findTotalExpense(dateRange);
+
+      emit(
+        state.copyWith(
+          expenses: expenses,
+          incomes: incomes,
+          transfers: transfers,
+          allTransactions: allTransactions,
+          totalIncome: totalIncome,
+          totalExpense: totalExpense,
+        ),
+      );
     } catch (err) {
       emit(
         state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),
@@ -54,17 +104,8 @@ class TransactionListBloc extends Bloc<TransactionListEvent, TransactionListStat
     try {
       emit(state.copyWith(isLoading: true));
 
-      /// dismissible widget needs to be immediately removed once handler was fired
-      /// so we try to remove and emit the expenses first before then fetching the updated list
-      List<PopulatedExpense> expenses = [...state.expenses];
-      expenses.removeWhere((el) => el.expense.id == event.id);
-      emit(state.copyWith(expenses: expenses));
-
       await expenseLogic.deleteById(event.id);
-
-      expenses = await expenseLogic.findAll();
-
-      emit(state.copyWith(expenses: expenses));
+      add(TransactionListEvent.started());
     } catch (err) {
       emit(
         state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),
@@ -85,10 +126,7 @@ class TransactionListBloc extends Bloc<TransactionListEvent, TransactionListStat
       emit(state.copyWith(incomes: incomes));
 
       await incomeLogic.deleteById(event.id);
-
-      incomes = await incomeLogic.findAll();
-
-      emit(state.copyWith(incomes: incomes));
+      add(TransactionListEvent.started());
     } catch (err) {
       emit(
         state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),
@@ -109,10 +147,7 @@ class TransactionListBloc extends Bloc<TransactionListEvent, TransactionListStat
       emit(state.copyWith(transfers: transfers));
 
       await transferLogic.deleteById(event.id);
-
-      transfers = await transferLogic.findAll();
-
-      emit(state.copyWith(transfers: transfers));
+      add(TransactionListEvent.started());
     } catch (err) {
       emit(
         state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),
@@ -120,5 +155,16 @@ class TransactionListBloc extends Bloc<TransactionListEvent, TransactionListStat
     } finally {
       emit(state.copyWith(isLoading: false));
     }
+  }
+
+  void _onTimeRangeChanged(_TimeRangeChanged event, Emitter<TransactionListState> emit) {
+    DateTimeRange? dateRange = event.customDateRange;
+    if (event.value == TimeRange.custom) {
+      if (dateRange == null) return;
+      dateRange = DateTimeRange(start: dateRange.start, end: dateRange.end.endOfDay);
+    }
+
+    emit(state.copyWith(timeRange: event.value, customDateRange: dateRange));
+    add(TransactionListEvent.started());
   }
 }

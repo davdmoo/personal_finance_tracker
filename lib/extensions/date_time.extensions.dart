@@ -12,6 +12,10 @@ extension DateTimeExt on DateTime {
     return DateTime(year, month, day, 0, 0, 0, 0, 0);
   }
 
+  DateTime get endOfDay {
+    return DateTime(year, month, day, 23, 59, 59);
+  }
+
   String get dateLocaleId {
     final dateFormat = DateFormat("dd/MM/yyyy", "id_ID");
     return dateFormat.format(this);

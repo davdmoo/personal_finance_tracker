@@ -2,12 +2,27 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 
 import '../database.dart';
+import '../extensions/date_time.extensions.dart';
 import '../models/categorized_expense.model.dart';
 import '../models/monthly_expense.model.dart';
 
 class ExpenseLogic {
   final AppDatabase db;
   const ExpenseLogic(this.db);
+
+  Map<DateTime, List<PopulatedExpense>> mapExpensesByDate(List<PopulatedExpense> expenses) {
+    final Map<DateTime, List<PopulatedExpense>> mappedExpenses = {};
+    for (final item in expenses) {
+      final date = item.expense.transactionDate.startOfDay;
+      if (mappedExpenses[date] == null) {
+        mappedExpenses[date] = [item];
+      } else {
+        mappedExpenses[date]?.add(item);
+      }
+    }
+
+    return mappedExpenses;
+  }
 
   Future<List<PopulatedExpense>> findAll({DateTimeRange? dateRange}) async {
     var query = db.select(db.expenses).join([

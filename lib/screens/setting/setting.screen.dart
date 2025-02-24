@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../routes.dart';
@@ -7,13 +8,15 @@ class SettingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, VoidCallback> routes = {
+    final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+
+    final Map<String, VoidCallback?> routes = {
       "Account Groups": () => AccountGroupRoute().push(context),
       "Accounts": () => AccountRoute().push(context),
       "Expense Categories": () => ExpenseCategoryRoute().push(context),
       "Income Categories": () => IncomeCategoryRoute().push(context),
       "Budgets": () => BudgetRoute().push(context),
-      "App Notifications": () => NotificationSettingRoute().push(context),
+      "App Notifications": isAndroid ? () => NotificationSettingRoute().push(context) : null,
     };
 
     return Scaffold(

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../database.dart';
-import '../../../extensions/date_time.extensions.dart';
 import '../../../extensions/double.extension.dart';
 import '../../../routes.dart';
 import '../../transaction_form/transaction_form.screen.dart';
@@ -37,14 +36,36 @@ class ExpenseItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.only(left: 16),
-      title: Text(item.expense.note),
-      subtitle: Text(item.expense.transactionDate.dateTimeLocaleIdShort),
+      subtitle: Row(
+        spacing: 8,
+        children: [
+          SizedBox(
+            width: 60,
+            child: Text(
+              item.category?.name ?? "-",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(item.expense.note.isEmpty ? "-" : item.expense.note),
+              Text(item.account?.name ?? "-"),
+            ],
+          ),
+        ],
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         spacing: 8,
         children: [
-          Text(item.expense.amount.currency),
+          Text(
+            item.expense.amount.currency,
+            style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.normal),
+          ),
           PopupMenuButton(
             padding: EdgeInsets.zero,
             itemBuilder: (context) => [
