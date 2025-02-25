@@ -48,34 +48,23 @@ class TransactionListBloc extends Bloc<TransactionListEvent, TransactionListStat
       }
 
       final expenses = await expenseLogic.findAll(dateRange: dateRange);
-      final mappedExpenses = expenseLogic.mapExpensesByDate(expenses);
-
       final incomes = await incomeLogic.findAll(dateRange: dateRange);
-      final mappedIncomes = incomeLogic.mapIncomesByDate(incomes);
-
       final transfers = await transferLogic.findAll(dateRange: dateRange);
-      final mappedTransfers = transferLogic.mapTransfersByDate(transfers);
 
       final Map<DateTime, List<Object>> allTransactions = {};
-      for (final item in mappedExpenses.entries) {
-        final date = item.key.startOfDay;
-        final value = item.value;
-
-        allTransactions[date] = [...allTransactions[date] ?? [], ...value];
+      for (final item in expenses) {
+        final date = item.expense.transactionDate.startOfDay;
+        allTransactions[date] = [...allTransactions[date] ?? [], item];
       }
 
-      for (final item in mappedIncomes.entries) {
-        final date = item.key.startOfDay;
-        final value = item.value;
-
-        allTransactions[date] = [...allTransactions[date] ?? [], ...value];
+      for (final item in incomes) {
+        final date = item.income.transactionDate.startOfDay;
+        allTransactions[date] = [...allTransactions[date] ?? [], item];
       }
 
-      for (final item in mappedTransfers.entries) {
-        final date = item.key.startOfDay;
-        final value = item.value;
-
-        allTransactions[date] = [...allTransactions[date] ?? [], ...value];
+      for (final item in transfers) {
+        final date = item.transfer.transactionDate.startOfDay;
+        allTransactions[date] = [...allTransactions[date] ?? [], item];
       }
 
       final totalIncome = await incomeLogic.findTotalIncome(dateRange);
