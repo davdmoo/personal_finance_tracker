@@ -2,12 +2,14 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 
 import '../database.dart';
+import '../database_provider.dart';
 import '../extensions/date_time.extensions.dart';
 import '../models/categorized_income.model.dart';
 
 class IncomeLogic {
-  final AppDatabase db;
-  const IncomeLogic(this.db);
+  final DatabaseProvider databaseProvider;
+
+  IncomeLogic(this.databaseProvider);
 
   Map<DateTime, List<PopulatedIncome>> mapIncomesByDate(List<PopulatedIncome> incomes) {
     final Map<DateTime, List<PopulatedIncome>> mappedIncomes = {};
@@ -25,6 +27,7 @@ class IncomeLogic {
   }
 
   Future<List<PopulatedIncome>> findAll({DateTimeRange? dateRange}) async {
+    final db = databaseProvider.database;
     var query = db.select(db.incomes).join([
       drift.leftOuterJoin(db.incomeCategories, db.incomeCategories.id.equalsExp(db.incomes.categoryId)),
       drift.leftOuterJoin(db.accounts, db.accounts.id.equalsExp(db.incomes.accountId)),
@@ -54,6 +57,7 @@ class IncomeLogic {
   }
 
   Future<List<CategorizedIncome>> findCategorizedIncomes() async {
+    final db = databaseProvider.database;
     final selectStatement = db.select(db.incomeCategories).join(
       [drift.innerJoin(db.incomes, db.incomeCategories.id.equalsExp(db.incomes.categoryId))],
     )
@@ -70,6 +74,7 @@ class IncomeLogic {
   }
 
   Future<double> findTotalIncome(DateTimeRange dateRange) async {
+    final db = databaseProvider.database;
     final sum = db.incomes.amount.sum();
 
     final query = db.selectOnly(db.incomes)
@@ -97,6 +102,7 @@ class IncomeLogic {
       transactionDate: transactionDate,
     );
 
+    final db = databaseProvider.database;
     return await db.into(db.incomes).insertReturning(data);
   }
 
@@ -117,6 +123,8 @@ class IncomeLogic {
       note: drift.Value(note ?? ""),
       transactionDate: drift.Value(transactionDate),
     );
+
+    final db = databaseProvider.database;
     final query = db.update(db.incomes)..where((tbl) => tbl.id.equals(id));
     final result = await query.writeReturning(data);
 
@@ -129,6 +137,7 @@ class IncomeLogic {
   }
 
   Future<void> deleteById(int id) async {
+    final db = databaseProvider.database;
     final query = db.delete(db.incomes)..where((tbl) => tbl.id.equals(id));
     await query.go();
   }

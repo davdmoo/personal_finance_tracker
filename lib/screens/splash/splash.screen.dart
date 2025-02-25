@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../database.dart';
+import '../../database_provider.dart';
 import '../../logics/app_notification.logic.dart';
 import '../../logics/currency.logic.dart';
 import '../../logics/default_currency.logic.dart';
@@ -15,7 +15,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SplashBloc(
-        db: context.read<AppDatabase>(),
+        databaseProvider: context.read<DatabaseProvider>(),
         currencyLogic: context.read<CurrencyLogic>(),
         defaultCurrencyLogic: context.read<DefaultCurrencyLogic>(),
         appNotificationLogic: context.read<AppNotification>(),

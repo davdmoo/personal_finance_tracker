@@ -1,19 +1,23 @@
 import 'package:drift/drift.dart' as drift;
 
 import '../database.dart';
+import '../database_provider.dart';
 import '../extensions/string.extensions.dart';
 
 class AccountLogic {
-  final AppDatabase db;
+  final DatabaseProvider databaseProvider;
 
-  const AccountLogic(this.db);
+  AccountLogic(this.databaseProvider);
 
   Future<List<Account>> findAll() async {
-    final selectStatement = (db.select(db.accounts))..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
-    return await selectStatement.get();
+    final db = databaseProvider.database;
+
+    final query = (db.select(db.accounts))..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
+    return await query.get();
   }
 
   Future<double> getAccountBalance(Account account) async {
+    final db = databaseProvider.database;
     final expenseSumStatement = await (db.selectOnly(db.expenses)
           ..where(db.expenses.accountId.equals(account.id))
           ..addColumns([db.expenses.amount.sum()]))
@@ -48,6 +52,7 @@ class AccountLogic {
     required String name,
     required int accountGroup,
   }) async {
+    final db = databaseProvider.database;
     final insertedData = await db.transaction<Account>(
       () async {
         // get the latest order from all accounts
@@ -78,6 +83,7 @@ class AccountLogic {
     required int accountGroup,
   }) async {
     final data = AccountsCompanion(name: drift.Value(name.capitalized.trim()));
+    final db = databaseProvider.database;
     final query = db.update(db.accounts)..where((tbl) => tbl.id.equals(id));
     final result = await query.writeReturning(data);
 
@@ -90,6 +96,8 @@ class AccountLogic {
   }
 
   Future<List<Account>> reorder(List<Account> accounts) async {
+    final db = databaseProvider.database;
+
     return await db.transaction<List<Account>>(
       () async {
         final List<Account> updatedAccounts = [];

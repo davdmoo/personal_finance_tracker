@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../database.dart';
+import '../../../database_provider.dart';
 import '../../../logics/app_notification.logic.dart';
 import '../../../logics/currency.logic.dart';
 import '../../../logics/default_currency.logic.dart';
@@ -13,17 +14,20 @@ part 'splash_event.dart';
 part 'splash_state.dart';
 
 class SplashBloc extends Bloc<SplashEvent, SplashState> {
-  final AppDatabase db;
+  final AppDatabase _db;
+  final DatabaseProvider databaseProvider;
+
   final DefaultCurrencyLogic defaultCurrencyLogic;
   final CurrencyLogic currencyLogic;
   final AppNotification appNotificationLogic;
 
   SplashBloc({
-    required this.db,
+    required this.databaseProvider,
     required this.defaultCurrencyLogic,
     required this.currencyLogic,
     required this.appNotificationLogic,
-  }) : super(_SplashState()) {
+  })  : _db = databaseProvider.database,
+        super(_SplashState()) {
     on<SplashEvent>(
       (events, emit) async {
         await events.map<FutureOr<void>>(
@@ -38,7 +42,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      await db.populateDatabase();
+      await _db.populateDatabase();
 
       final defaultCurrency = await defaultCurrencyLogic.getDefaultCurrency();
       if (defaultCurrency == null) {

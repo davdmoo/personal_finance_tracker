@@ -2,7 +2,8 @@ import 'dart:developer';
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutter/foundation.dart';
+
+import 'constants/app.constant.dart';
 
 part "database.g.dart";
 
@@ -326,14 +327,14 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('PRAGMA foreign_keys = ON');
 
         // delete all tables on debug mode
-        if (kDebugMode) {
-          log("RUNNING");
-          final m = Migrator(this);
-          for (final table in allTables) {
-            await m.deleteTable(table.actualTableName);
-            await m.createTable(table);
-          }
-        }
+        // if (kDebugMode) {
+        //   log("RUNNING");
+        //   final m = Migrator(this);
+        //   for (final table in allTables) {
+        //     await m.deleteTable(table.actualTableName);
+        //     await m.createTable(table);
+        //   }
+        // }
       },
     );
   }
@@ -342,8 +343,8 @@ class AppDatabase extends _$AppDatabase {
     // By default, `driftDatabase` from `package:drift_flutter` stores the
     // database files in `getApplicationDocumentsDirectory()`.
     return driftDatabase(
-      name: 'finance_tracker',
-      native: const DriftNativeOptions(),
+      name: AppConstant.databaseName,
+      native: DriftNativeOptions(),
     );
   }
 }

@@ -4,10 +4,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
-import 'database.dart';
+import 'database_provider.dart';
 import 'logics/account.logic.dart';
 import 'logics/account_group.logic.dart';
 import 'logics/app_notification.logic.dart';
+import 'logics/backup.logic.dart';
 import 'logics/budget.logic.dart';
 import 'logics/create_excel.logic.dart';
 import 'logics/currency.logic.dart';
@@ -28,39 +29,17 @@ void main() async {
   runApp(
     MultiRepositoryProvider(
       providers: [
-        RepositoryProvider(
-          create: (context) => AppDatabase(),
-        ),
-        RepositoryProvider(
-          create: (context) => AccountLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => AccountGroupLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => IncomeCategoryLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => CurrencyLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => ExpenseCategoryLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => IncomeCategoryLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => ExpenseLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => IncomeLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => TransferLogic(context.read<AppDatabase>()),
-        ),
-        RepositoryProvider(
-          create: (context) => BudgetLogic(context.read<AppDatabase>()),
-        ),
+        RepositoryProvider(create: (context) => DatabaseProvider()),
+        RepositoryProvider(create: (context) => AccountLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => AccountGroupLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => IncomeCategoryLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => CurrencyLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => ExpenseCategoryLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => IncomeCategoryLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => ExpenseLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => IncomeLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => TransferLogic(context.read<DatabaseProvider>())),
+        RepositoryProvider(create: (context) => BudgetLogic(context.read<DatabaseProvider>())),
         RepositoryProvider(
           create: (context) => CreateExcelLogic(
             expenseLogic: context.read<ExpenseLogic>(),
@@ -68,12 +47,9 @@ void main() async {
             transferLogic: context.read<TransferLogic>(),
           ),
         ),
-        RepositoryProvider(
-          create: (context) => DefaultCurrencyLogic(),
-        ),
-        RepositoryProvider(
-          create: (context) => AppNotification(),
-        ),
+        RepositoryProvider(create: (context) => DefaultCurrencyLogic()),
+        RepositoryProvider(create: (context) => AppNotification()),
+        RepositoryProvider(create: (context) => BackupLogic(context.read<DatabaseProvider>())),
       ],
       child: const FinanceTracker(),
     ),
