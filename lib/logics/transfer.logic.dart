@@ -2,11 +2,13 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 
 import '../database.dart';
+import '../database_provider.dart';
 import '../extensions/date_time.extensions.dart';
 
 class TransferLogic {
-  final AppDatabase db;
-  const TransferLogic(this.db);
+  final DatabaseProvider databaseProvider;
+
+  TransferLogic(this.databaseProvider);
 
   Map<DateTime, List<PopulatedTransfer>> mapTransfersByDate(List<PopulatedTransfer> transfers) {
     final Map<DateTime, List<PopulatedTransfer>> mappedTransfers = {};
@@ -24,6 +26,7 @@ class TransferLogic {
   }
 
   Future<List<PopulatedTransfer>> findAll({DateTimeRange? dateRange}) async {
+    final db = databaseProvider.database;
     final accountOriginAlias = db.alias(db.accounts, "origin");
     final accountDestinationAlias = db.alias(db.accounts, "destination");
 
@@ -77,6 +80,7 @@ class TransferLogic {
       transactionDate: transactionDate,
     );
 
+    final db = databaseProvider.database;
     return await db.into(db.transfers).insertReturning(data);
   }
 
@@ -99,6 +103,8 @@ class TransferLogic {
       note: drift.Value(note ?? ""),
       transactionDate: drift.Value(transactionDate),
     );
+
+    final db = databaseProvider.database;
     final query = db.update(db.transfers)..where((tbl) => tbl.id.equals(id));
     final result = await query.writeReturning(data);
 
@@ -111,6 +117,7 @@ class TransferLogic {
   }
 
   Future<void> deleteById(int id) async {
+    final db = databaseProvider.database;
     final query = db.delete(db.transfers)..where((tbl) => tbl.id.equals(id));
     await query.go();
   }

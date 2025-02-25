@@ -16,6 +16,7 @@ class SettingScreen extends StatelessWidget {
       "Expense Categories": () => ExpenseCategoryRoute().push(context),
       "Income Categories": () => IncomeCategoryRoute().push(context),
       "Budgets": () => BudgetRoute().push(context),
+      "Backups & Exports": () => BackupRoute().push(context),
       "App Notifications": isAndroid ? () => NotificationSettingRoute().push(context) : null,
     };
 
