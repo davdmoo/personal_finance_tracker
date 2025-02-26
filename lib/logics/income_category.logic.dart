@@ -1,13 +1,17 @@
 import 'package:drift/drift.dart' as drift;
 
 import '../database.dart';
+import '../database_provider.dart';
 import '../extensions/string.extensions.dart';
 
 class IncomeCategoryLogic {
-  final AppDatabase db;
-  const IncomeCategoryLogic(this.db);
+  final DatabaseProvider databaseProvider;
+
+  IncomeCategoryLogic(this.databaseProvider);
 
   Future<List<IncomeCategory>> findAll() async {
+    final db = databaseProvider.database;
+
     final query = db.select(db.incomeCategories)..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
     return await query.get();
   }
@@ -16,6 +20,8 @@ class IncomeCategoryLogic {
     required String name,
     String? description,
   }) async {
+    final db = databaseProvider.database;
+
     final insertedData = await db.transaction<IncomeCategory>(() async {
       // get the latest order from all accounts
       final selectStatement = (db.select(db.incomeCategories))
@@ -47,6 +53,8 @@ class IncomeCategoryLogic {
       name: drift.Value(name.capitalized.trim()),
       description: drift.Value(description?.capitalized.trim()),
     );
+
+    final db = databaseProvider.database;
     final query = db.update(db.incomeCategories)..where((tbl) => tbl.id.equals(id));
     final result = await query.writeReturning(data);
 
@@ -59,6 +67,8 @@ class IncomeCategoryLogic {
   }
 
   Future<List<IncomeCategory>> reorder(List<IncomeCategory> categories) async {
+    final db = databaseProvider.database;
+
     return await db.transaction<List<IncomeCategory>>(
       () async {
         final List<IncomeCategory> updatedCategories = [];

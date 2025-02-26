@@ -1,18 +1,21 @@
 import 'package:drift/drift.dart';
 
 import '../database.dart';
+import '../database_provider.dart';
 import '../models/budget_progress.model.dart';
 
 class BudgetLogic {
-  final AppDatabase db;
-  const BudgetLogic(this.db);
+  final DatabaseProvider databaseProvider;
+
+  BudgetLogic(this.databaseProvider);
 
   Future<List<BudgetProgress>> findAll() async {
-    final selectBudgetStatement = db.select(db.budgets).join([
+    final db = databaseProvider.database;
+    final query = db.select(db.budgets).join([
       leftOuterJoin(db.expenseCategories, db.expenseCategories.id.equalsExp(db.budgets.categoryId)),
     ])
       ..orderBy([OrderingTerm(expression: db.budgets.updatedAt, mode: OrderingMode.desc)]);
-    final budgets = await selectBudgetStatement.asyncMap((row) async {
+    final budgets = await query.asyncMap((row) async {
       final budget = row.readTable(db.budgets);
       final budgetProgress = await getBudgetProgress(budget.id);
 
@@ -26,6 +29,8 @@ class BudgetLogic {
   }
 
   Future<BudgetProgress> getBudgetProgress(int id) async {
+    final db = databaseProvider.database;
+
     final selectBudgetStatement = db.select(db.budgets).join([
       leftOuterJoin(db.expenseCategories, db.expenseCategories.id.equalsExp(db.budgets.categoryId)),
     ])
@@ -51,6 +56,8 @@ class BudgetLogic {
     required int categoryId,
     required double amount,
   }) async {
+    final db = databaseProvider.database;
+
     final budget = await db.transaction<Budget>(
       () async {
         final selectStatement = db.select(db.budgets)..where((tbl) => tbl.categoryId.equals(categoryId));
@@ -81,6 +88,7 @@ class BudgetLogic {
       amount: Value(amount),
     );
 
+    final db = databaseProvider.database;
     final query = db.update(db.budgets)..where((tbl) => tbl.id.equals(id));
     final result = await query.writeReturning(data);
 
