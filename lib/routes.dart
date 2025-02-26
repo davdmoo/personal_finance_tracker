@@ -21,6 +21,8 @@ final router = GoRouter(
   initialLocation: SplashRoute.path,
 );
 
+const animationDuration = 200;
+
 @TypedGoRoute<SplashRoute>(path: SplashRoute.path, name: SplashRoute.name)
 @immutable
 class SplashRoute extends GoRouteData {
@@ -73,8 +75,8 @@ class TransactionFormRoute extends GoRouteData {
         populatedIncome: $extra?.populatedIncome,
         populatedTransfer: $extra?.populatedTransfer,
       ),
-      transitionDuration: Duration(milliseconds: 300),
-      reverseTransitionDuration: Duration(milliseconds: 300),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -98,6 +100,8 @@ class ExpenseCategoryRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: ExpenseCategoryScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -121,6 +125,8 @@ class IncomeCategoryRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: IncomeCategoryScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -144,6 +150,8 @@ class AccountGroupRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: AccountGroupScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -167,6 +175,8 @@ class AccountRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: AccountScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -190,6 +200,8 @@ class CurrencyRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: AccountScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -213,6 +225,8 @@ class BudgetRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: BudgetScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -236,6 +250,8 @@ class DashboardRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: DashboardScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -259,6 +275,8 @@ class NotificationSettingRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: NotificationSettingScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
@@ -282,6 +300,8 @@ class BackupRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: BackupScreen(),
+      transitionDuration: Duration(milliseconds: animationDuration),
+      reverseTransitionDuration: Duration(milliseconds: animationDuration),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),
