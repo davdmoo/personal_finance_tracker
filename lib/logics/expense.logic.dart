@@ -2,13 +2,15 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 
 import '../database.dart';
+import '../database_provider.dart';
 import '../extensions/date_time.extensions.dart';
 import '../models/categorized_expense.model.dart';
 import '../models/monthly_expense.model.dart';
 
 class ExpenseLogic {
-  final AppDatabase db;
-  const ExpenseLogic(this.db);
+  final DatabaseProvider databaseProvider;
+
+  ExpenseLogic(this.databaseProvider);
 
   Map<DateTime, List<PopulatedExpense>> mapExpensesByDate(List<PopulatedExpense> expenses) {
     final Map<DateTime, List<PopulatedExpense>> mappedExpenses = {};
@@ -25,6 +27,7 @@ class ExpenseLogic {
   }
 
   Future<List<PopulatedExpense>> findAll({DateTimeRange? dateRange}) async {
+    final db = databaseProvider.database;
     var query = db.select(db.expenses).join([
       drift.leftOuterJoin(db.expenseCategories, db.expenseCategories.id.equalsExp(db.expenses.categoryId)),
       drift.leftOuterJoin(db.accounts, db.accounts.id.equalsExp(db.expenses.accountId)),
@@ -64,6 +67,7 @@ class ExpenseLogic {
       timeZoneString = "-${timeZone.abs()}";
     }
 
+    final db = databaseProvider.database;
     final sixMonthsAgo = DateTime.utc(now.year, now.month - 5, 1);
     final month = drift.CustomExpression<String>(
       "strftime('%Y-%m', datetime(${db.expenses.transactionDate.name}, 'unixepoch', '$timeZoneString hours'))",
@@ -90,6 +94,7 @@ class ExpenseLogic {
   }
 
   Future<List<CategorizedExpense>> findCategorizedExpenses({required DateTimeRange dateRange, int? limit}) async {
+    final db = databaseProvider.database;
     final sum = db.expenses.amount.sum();
 
     var selectStatement = db.select(db.expenseCategories).join(
@@ -120,6 +125,7 @@ class ExpenseLogic {
   }
 
   Future<double> findTotalExpense(DateTimeRange dateRange) async {
+    final db = databaseProvider.database;
     final sum = db.expenses.amount.sum();
 
     final selectStatement = db.selectOnly(db.expenses)
@@ -147,6 +153,7 @@ class ExpenseLogic {
       transactionDate: transactionDate,
     );
 
+    final db = databaseProvider.database;
     return await db.into(db.expenses).insertReturning(data);
   }
 
@@ -167,6 +174,8 @@ class ExpenseLogic {
       note: drift.Value(note ?? ""),
       transactionDate: drift.Value(transactionDate),
     );
+
+    final db = databaseProvider.database;
     final query = db.update(db.expenses)..where((tbl) => tbl.id.equals(id));
     final result = await query.writeReturning(data);
 
@@ -179,6 +188,7 @@ class ExpenseLogic {
   }
 
   Future<void> deleteById(int id) async {
+    final db = databaseProvider.database;
     final query = db.delete(db.expenses)..where((tbl) => tbl.id.equals(id));
     await query.go();
   }

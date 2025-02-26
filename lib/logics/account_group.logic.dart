@@ -1,20 +1,26 @@
 import 'package:drift/drift.dart' as drift;
 
 import '../database.dart';
+import '../database_provider.dart';
 import '../extensions/string.extensions.dart';
 
 class AccountGroupLogic {
-  final AppDatabase db;
-  const AccountGroupLogic(this.db);
+  final DatabaseProvider databaseProvider;
+
+  AccountGroupLogic(this.databaseProvider);
 
   Future<List<AccountGroup>> findAll() async {
-    final selectStatement = (db.select(db.accountGroups))..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
-    return await selectStatement.get();
+    final db = databaseProvider.database;
+
+    final query = (db.select(db.accountGroups))..orderBy([(t) => drift.OrderingTerm.asc(t.order)]);
+    return await query.get();
   }
 
   Future<AccountGroup> create({
     required String name,
   }) async {
+    final db = databaseProvider.database;
+
     final insertedData = await db.transaction<AccountGroup>(
       () async {
         // get the latest order from all account groups
@@ -43,6 +49,8 @@ class AccountGroupLogic {
     required String name,
   }) async {
     final data = AccountGroupsCompanion(name: drift.Value(name.capitalized.trim()));
+
+    final db = databaseProvider.database;
     final query = db.update(db.accountGroups)..where((tbl) => tbl.id.equals(id));
     final result = await query.writeReturning(data);
 
@@ -55,6 +63,8 @@ class AccountGroupLogic {
   }
 
   Future<List<AccountGroup>> reorder(List<AccountGroup> accountGroups) async {
+    final db = databaseProvider.database;
+
     return await db.transaction<List<AccountGroup>>(
       () async {
         final List<AccountGroup> updatedAccountGroups = [];

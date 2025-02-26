@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'database.dart';
 import 'screens/account/account.screen.dart';
 import 'screens/account_group/account_group.screen.dart';
+import 'screens/backup/backup.screen.dart';
 import 'screens/budget/budget.screen.dart';
 import 'screens/dashboard/dashboard.screen.dart';
 import 'screens/expense_category/expense_category.screen.dart';
@@ -258,6 +259,29 @@ class NotificationSettingRoute extends GoRouteData {
   Page<void> buildPage(BuildContext context, GoRouterState state) {
     return CustomTransitionPage(
       child: NotificationSettingScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final position = Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: position, child: child);
+      },
+    );
+  }
+}
+
+@TypedGoRoute<BackupRoute>(path: BackupRoute.path, name: BackupRoute.name)
+@immutable
+class BackupRoute extends GoRouteData {
+  static const path = "/backups", name = "backups";
+
+  const BackupRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    return CustomTransitionPage(
+      child: BackupScreen(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         final position = Tween<Offset>(
           begin: const Offset(1, 0),

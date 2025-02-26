@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../routes.dart';
 
@@ -16,7 +17,18 @@ class SettingScreen extends StatelessWidget {
       "Expense Categories": () => ExpenseCategoryRoute().push(context),
       "Income Categories": () => IncomeCategoryRoute().push(context),
       "Budgets": () => BudgetRoute().push(context),
-      "App Notifications": isAndroid ? () => NotificationSettingRoute().push(context) : null,
+      "Backups & Exports": () => BackupRoute().push(context),
+      "App Notifications": isAndroid
+          ? () => NotificationSettingRoute().push(context)
+          : () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text("Currently only available on Android"),
+                  actions: [TextButton(onPressed: () => context.pop(false), child: Text("Close"))],
+                ),
+              );
+            },
     };
 
     return Scaffold(
