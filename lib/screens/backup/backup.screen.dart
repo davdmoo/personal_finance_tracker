@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../extensions/date_time.extensions.dart';
 import '../../logics/backup.logic.dart';
+import '../../widgets/loading.widget.dart';
 import 'bloc/backup_bloc.dart';
 
 class BackupScreen extends StatelessWidget {
@@ -66,42 +67,74 @@ class BackupScreen extends StatelessWidget {
             },
           ),
         ],
-        child: Scaffold(
-          appBar: AppBar(title: Text("Backup & Exports")),
-          body: Builder(
-            builder: (context) => ListView(
+        child: BlocBuilder<BackupBloc, BackupState>(
+          buildWhen: (previous, current) {
+            return previous.isExporting != current.isExporting || previous.isImporting != current.isImporting;
+          },
+          builder: (context, state) {
+            final isImporting = state.isImporting;
+            final isExporting = state.isExporting;
+
+            return Stack(
               children: [
-                BlocBuilder<BackupBloc, BackupState>(
-                  buildWhen: (previous, current) => previous.lastBackupDate != current.lastBackupDate,
-                  builder: (context, state) {
-                    final lastBackupDate = state.lastBackupDate;
+                Scaffold(
+                  appBar: AppBar(title: Text("Backup & Exports")),
+                  body: ListView(
+                    children: [
+                      BlocBuilder<BackupBloc, BackupState>(
+                        buildWhen: (previous, current) => previous.lastBackupDate != current.lastBackupDate,
+                        builder: (context, state) {
+                          final lastBackupDate = state.lastBackupDate;
 
-                    return ListTile(
-                      title: Text("Last backup: ${lastBackupDate?.dateLocaleId ?? '-'}"),
-                      onTap: () async {
-                        final directory = await FilePicker.platform.getDirectoryPath();
-                        if (directory == null || !context.mounted) return;
+                          return ListTile(
+                            title: Text("Last backup: ${lastBackupDate?.dateLocaleId ?? '-'}"),
+                            onTap: () async {
+                              final directory = await FilePicker.platform.getDirectoryPath();
+                              if (directory == null || !context.mounted) return;
 
-                        context.read<BackupBloc>().add(BackupEvent.exportConfirmed(directory));
-                      },
-                    );
-                  },
+                              context.read<BackupBloc>().add(BackupEvent.exportConfirmed(directory));
+                            },
+                          );
+                        },
+                      ),
+                      ListTile(
+                        title: Text("Import data from a backup file"),
+                        onTap: () async {
+                          final isConfirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("Your current data will be replaced. Is that okay?"),
+                              actions: [
+                                TextButton(onPressed: () => context.pop(false), child: Text("Cancel")),
+                                TextButton(onPressed: () => context.pop(true), child: Text("Confirm")),
+                              ],
+                            ),
+                          );
+                          if (isConfirmed == null || !isConfirmed) return;
+
+                          final pickedFile = await FilePicker.platform.pickFiles(allowMultiple: false);
+                          if (pickedFile == null || !context.mounted) return;
+
+                          final file = pickedFile.files.firstOrNull;
+                          if (file == null) return;
+
+                          context.read<BackupBloc>().add(BackupEvent.importConfirmed(File(file.path!)));
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                ListTile(
-                  title: Text("Import data from a backup file"),
-                  onTap: () async {
-                    final pickedFile = await FilePicker.platform.pickFiles(allowMultiple: false);
-                    if (pickedFile == null || !context.mounted) return;
-
-                    final file = pickedFile.files.firstOrNull;
-                    if (file == null) return;
-
-                    context.read<BackupBloc>().add(BackupEvent.importConfirmed(File(file.path!)));
-                  },
+                Visibility(
+                  visible: isImporting,
+                  child: LoadingWidget(loadingMessage: "Importing data..\nThis might take a few minutes"),
                 ),
+                Visibility(
+                  visible: isExporting,
+                  child: LoadingWidget(loadingMessage: "Backing up data..\nThis might take a few minutes"),
+                )
               ],
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
