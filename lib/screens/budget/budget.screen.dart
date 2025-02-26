@@ -91,6 +91,7 @@ class BudgetScreen extends StatelessWidget {
 
                     context.read<BudgetBloc>().add(BudgetEvent.started());
                   },
+                  trailing: ReorderableDragStartListener(index: index, child: Icon(Icons.drag_handle)),
                 );
               },
               itemCount: budgets.length,

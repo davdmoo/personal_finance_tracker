@@ -43,6 +43,7 @@ class IncomeCategoryScreen extends StatelessWidget {
 
                       context.read<IncomeCategoryListBloc>().add(IncomeCategoryListEvent.started());
                     },
+                    trailing: ReorderableDragStartListener(index: index, child: Icon(Icons.drag_handle)),
                   );
                 },
                 onReorder: (int oldIndex, int newIndex) {
