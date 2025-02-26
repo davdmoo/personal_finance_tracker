@@ -35,6 +35,7 @@ class AccountGroupScreen extends StatelessWidget {
 
                     context.read<AccountGroupBloc>().add(AccountGroupEvent.started());
                   },
+                  trailing: ReorderableDragStartListener(index: index, child: Icon(Icons.drag_handle)),
                 );
               },
               itemCount: accountGroups.length,

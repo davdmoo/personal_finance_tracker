@@ -53,6 +53,7 @@ class ExpenseCategoryScreen extends StatelessWidget {
 
                         context.read<ExpenseCategoryListBloc>().add(ExpenseCategoryListEvent.started());
                       },
+                      trailing: ReorderableDragStartListener(index: index, child: Icon(Icons.drag_handle)),
                     );
                   },
                   onReorder: (int oldIndex, int newIndex) {
