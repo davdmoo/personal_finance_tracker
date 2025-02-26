@@ -39,6 +39,7 @@ class AccountScreen extends StatelessWidget {
 
                     context.read<AccountBloc>().add(AccountEvent.started());
                   },
+                  trailing: ReorderableDragStartListener(index: index, child: Icon(Icons.drag_handle)),
                 );
               },
               itemCount: accounts.length,
