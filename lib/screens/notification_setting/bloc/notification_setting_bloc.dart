@@ -37,6 +37,7 @@ class NotificationSettingBloc extends Bloc<NotificationSettingEvent, Notificatio
 
       List<TimeOfDay> schedules = [];
       if (status == true) {
+        await appNotificationLogic.requestPermissions();
         schedules = await appNotificationLogic.getSchedules();
 
         if (schedules.isEmpty) {
