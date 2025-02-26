@@ -78,6 +78,9 @@ class FinanceTracker extends StatelessWidget {
           labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
           bodyMedium: TextStyle(fontSize: 12),
         ),
+        dialogTheme: DialogTheme(
+          titleTextStyle: TextStyle(fontSize: 20, color: Colors.black),
+        ),
       ),
       routerConfig: router,
     );
