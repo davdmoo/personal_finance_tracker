@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:open_filex/open_filex.dart';
 
 import '../../logics/create_excel.logic.dart';
 import '../../logics/expense.logic.dart';
@@ -47,10 +46,7 @@ class SummaryScreen extends StatelessWidget {
               if (file == null) return;
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Download successful. Please check your downloads folder."),
-                  action: SnackBarAction(label: "Open", onPressed: () => OpenFilex.open(file.path)),
-                ),
+                SnackBar(content: Text("Download successful. Please check your downloads folder.")),
               );
             },
           ),
