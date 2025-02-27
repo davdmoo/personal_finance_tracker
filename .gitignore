@@ -50,3 +50,6 @@ app.*.map.json
 # Build runner files
 **/*.g.dart
 **/*.freezed.dart
+
+# Generated folder (related to NDK and C++ compilation)
+.cxx/
