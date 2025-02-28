@@ -62,9 +62,9 @@ class TransactionFormRoute extends GoRouteData {
   static const path = "/transactions", name = "transactions";
 
   final TransactionFormRouteExtra? $extra;
-  final TransactionFormTab tab;
+  final TransactionFormTab? tab;
 
-  const TransactionFormRoute({this.$extra, required this.tab});
+  const TransactionFormRoute({this.$extra, this.tab});
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {

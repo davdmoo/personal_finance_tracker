@@ -25,13 +25,13 @@ enum TransactionFormTab {
 class TransactionFormScreen extends StatelessWidget {
   const TransactionFormScreen({
     super.key,
-    required this.tab,
+    this.tab,
     this.populatedExpense,
     this.populatedIncome,
     this.populatedTransfer,
   });
 
-  final TransactionFormTab tab;
+  final TransactionFormTab? tab;
   final PopulatedExpense? populatedExpense;
   final PopulatedIncome? populatedIncome;
   final PopulatedTransfer? populatedTransfer;
@@ -106,6 +106,6 @@ class TransactionFormScreen extends StatelessWidget {
   }
 
   int get selectedIndex {
-    return tab.index;
+    return tab?.index ?? 0;
   }
 }
