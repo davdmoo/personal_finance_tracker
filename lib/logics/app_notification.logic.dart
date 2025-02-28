@@ -5,11 +5,14 @@ import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:open_file_manager/open_file_manager.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import '../enums/notification_action.enum.dart';
+import '../exceptions/notification_permission.exception.dart';
 import '../extensions/time_of_day.extension.dart';
 import '../models/zoned_schedule_body.model.dart';
 
@@ -25,8 +28,14 @@ class AppNotification {
       android: androidInitSettings,
     );
 
+    await requestPermissions();
     await _notificationsPlugin.initialize(
       initSettings,
+      onDidReceiveNotificationResponse: (details) async {
+        if (details.payload == NotificationAction.openDownloadsFolder.name) {
+          openFileManager(androidConfig: AndroidConfig(folderType: FolderType.download));
+        }
+      },
     );
   }
 
@@ -34,22 +43,31 @@ class AppNotification {
     required int id,
     required String title,
     required String body,
+    NotificationAction? action,
   }) async {
     final packageInfo = await PackageInfo.fromPlatform();
     final androidDetails = AndroidNotificationDetails(
       packageInfo.packageName, // must be unique
       'Finance Tracker',
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
       icon: "@mipmap/launcher_icon",
       silent: false,
       playSound: true,
       enableVibration: true,
+      actions: [
+        AndroidNotificationAction(id.toString(), "Open folder", showsUserInterface: true),
+      ],
     );
 
     final notificationDetails = NotificationDetails(android: androidDetails);
-
-    await _notificationsPlugin.show(id, title, body, notificationDetails);
+    await _notificationsPlugin.show(
+      id,
+      title,
+      body,
+      notificationDetails,
+      payload: action?.name,
+    );
   }
 
   Future<List<ActiveNotification>> getActiveNotifications() async {
@@ -158,7 +176,7 @@ class AppNotification {
     }
 
     if (!notifPermission.isGranted) {
-      throw Exception("You have to allow notifications first");
+      throw NotificationPermissionException("You have to allow notifications first");
     }
 
     final exactAlarmPermission = await Permission.scheduleExactAlarm.request();
@@ -169,7 +187,7 @@ class AppNotification {
     }
 
     if (!exactAlarmPermission.isGranted) {
-      throw Exception("You have to allow the permission first");
+      throw NotificationPermissionException("You have to allow the alarm permission first");
     }
   }
 }

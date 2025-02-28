@@ -80,6 +80,7 @@ class FinanceTracker extends StatelessWidget {
         ),
         dialogTheme: DialogTheme(
           titleTextStyle: TextStyle(fontSize: 20, color: Colors.black),
+          actionsPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         ),
       ),
       routerConfig: router,
