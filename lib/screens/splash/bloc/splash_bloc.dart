@@ -5,6 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../database.dart';
 import '../../../database_provider.dart';
+import '../../../exceptions/notification_permission.exception.dart';
 import '../../../logics/app_notification.logic.dart';
 import '../../../logics/currency.logic.dart';
 import '../../../logics/default_currency.logic.dart';
@@ -42,6 +43,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     try {
       emit(state.copyWith(isLoading: true));
 
+      await appNotificationLogic.init();
       await _db.populateDatabase();
 
       final defaultCurrency = await defaultCurrencyLogic.getDefaultCurrency();
@@ -51,6 +53,8 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
       } else {
         emit(state.copyWith(appInitSuccessful: true));
       }
+    } on NotificationPermissionException catch (err) {
+      emit(state.copyWith(error: err));
     } catch (err) {
       emit(
         state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),
