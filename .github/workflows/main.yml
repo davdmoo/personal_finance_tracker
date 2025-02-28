@@ -30,9 +30,9 @@ jobs:
       - name: Create key.properties
         run: |
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/keystore.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" > android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=keystore.jks" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" > android/keystore.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/keystore.properties
+          echo "storeFile=keystore.jks" >> android/keystore.properties
       - name: Build apk
         run: flutter build apk --release
       - name: Upload artifacts
