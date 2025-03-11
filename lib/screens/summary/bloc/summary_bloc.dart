@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../enums/time_range.enum.dart';
+import '../../../logics/app_notification.logic.dart';
 import '../../../logics/create_excel.logic.dart';
 import '../../../logics/expense.logic.dart';
 import '../../../logics/income.logic.dart';
@@ -21,11 +21,13 @@ class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
   final ExpenseLogic expenseLogic;
   final IncomeLogic incomeLogic;
   final CreateExcelLogic createExcelLogic;
+  final AppNotification appNotificationLogic;
 
   SummaryBloc({
     required this.expenseLogic,
     required this.incomeLogic,
     required this.createExcelLogic,
+    required this.appNotificationLogic,
   }) : super(_SummaryState()) {
     on<SummaryEvent>((events, emit) async {
       await events.map<FutureOr<void>>(
@@ -103,7 +105,6 @@ class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
       final excelReport = await createExcelLogic(dateRange ?? timeRange.dateRange);
       emit(state.copyWith(excelReport: excelReport));
     } catch (err) {
-      log(err.toString());
       emit(
         state.copyWith(error: err is Exception ? err : Exception("Unknown error occurred. Please try again later.")),
       );

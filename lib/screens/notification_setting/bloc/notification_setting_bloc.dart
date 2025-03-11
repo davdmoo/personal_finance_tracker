@@ -21,7 +21,7 @@ class NotificationSettingBloc extends Bloc<NotificationSettingEvent, Notificatio
         await events.map<FutureOr<void>>(
           started: (event) async => await _onStarted(event, emit),
           notificationSwitched: (event) async => await _onNotificationSwitched(event, emit),
-          scheduleAdded: (event) => _onScheduleAdded(event, emit),
+          scheduleAdded: (event) async => await _onScheduleAdded(event, emit),
           scheduleRemoved: (event) async => await _onScheduleRemoved(event, emit),
           scheduleChanged: (event) async => await _onScheduleChanged(event, emit),
         );

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:open_file_manager/open_file_manager.dart';
 
+import '../../logics/app_notification.logic.dart';
 import '../../logics/create_excel.logic.dart';
 import '../../logics/expense.logic.dart';
 import '../../logics/income.logic.dart';
@@ -18,6 +21,7 @@ class SummaryScreen extends StatelessWidget {
         expenseLogic: context.read<ExpenseLogic>(),
         incomeLogic: context.read<IncomeLogic>(),
         createExcelLogic: context.read<CreateExcelLogic>(),
+        appNotificationLogic: context.read<AppNotification>(),
       )..add(SummaryEvent.started()),
       child: MultiBlocListener(
         listeners: [
@@ -41,13 +45,30 @@ class SummaryScreen extends StatelessWidget {
             listenWhen: (previous, current) {
               return previous.excelReport != current.excelReport && current.excelReport != null;
             },
-            listener: (context, state) {
+            listener: (context, state) async {
               final file = state.excelReport;
               if (file == null) return;
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Download successful. Please check your downloads folder.")),
+              // in case user haven't allowed app notifications
+              final result = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text("Export to excel successful!"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => context.pop(false),
+                      child: Text("Close"),
+                    ),
+                    TextButton(
+                      onPressed: () => context.pop(true),
+                      child: Text("Open folder"),
+                    )
+                  ],
+                ),
               );
+              if (result == null || !result || !context.mounted) return;
+
+              openFileManager(androidConfig: AndroidConfig(folderType: FolderType.download));
             },
           ),
         ],
@@ -60,17 +81,7 @@ class SummaryScreen extends StatelessWidget {
                 children: [
                   SummaryWidget(),
                   Divider(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 8,
-                    children: [
-                      ExportExcelButton(),
-                      Tooltip(
-                        message: "Check your downloads folder",
-                        child: Icon(Icons.info_outline, size: 20),
-                      ),
-                    ],
-                  ),
+                  ExportExcelButton(),
                 ],
               ),
             ),
