@@ -1,0 +1,3 @@
+enum NotificationAction {
+  openDownloadsFolder;
+}

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../database_provider.dart';
+import '../../exceptions/notification_permission.exception.dart';
 import '../../logics/app_notification.logic.dart';
 import '../../logics/currency.logic.dart';
 import '../../logics/default_currency.logic.dart';
@@ -31,6 +33,28 @@ class SplashScreen extends StatelessWidget {
               HomeRoute().go(context);
             },
           ),
+          BlocListener<SplashBloc, SplashState>(
+            listenWhen: (previous, current) => previous.error != current.error,
+            listener: (context, state) {
+              final error = state.error;
+              if (error is NotificationPermissionException) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text("Notifications denied"),
+                    content: Text(
+                      "You can allow permissions in settings > app notifications",
+                      textAlign: TextAlign.center,
+                    ),
+                    actions: [
+                      TextButton(onPressed: () => context.pop(), child: Text("Close")),
+                    ],
+                  ),
+                );
+              }
+              HomeRoute().go(context);
+            },
+          ),
         ],
         child: Scaffold(
           body: SizedBox(
@@ -55,7 +79,7 @@ class SplashScreen extends StatelessWidget {
                 }
 
                 final error = state.error;
-                if (error != null) {
+                if (error != null && error is! NotificationPermissionException) {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -77,7 +101,7 @@ class SplashScreen extends StatelessWidget {
 
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 8,
+                      spacing: 16,
                       children: [
                         Text(
                           "Please select a default currency.",
