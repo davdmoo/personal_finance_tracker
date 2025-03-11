@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../../enums/notification_action.enum.dart';
 import '../../../enums/time_range.enum.dart';
 import '../../../logics/app_notification.logic.dart';
 import '../../../logics/create_excel.logic.dart';
@@ -104,12 +103,6 @@ class SummaryBloc extends Bloc<SummaryEvent, SummaryState> {
       }
 
       final excelReport = await createExcelLogic(dateRange ?? timeRange.dateRange);
-      await appNotificationLogic.showNotification(
-        id: excelReport.hashCode,
-        title: "Finance Tracker",
-        body: "Your excel report is ready",
-        action: NotificationAction.openDownloadsFolder,
-      );
       emit(state.copyWith(excelReport: excelReport));
     } catch (err) {
       emit(
