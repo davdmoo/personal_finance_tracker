@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -35,7 +37,10 @@ class AccountGroupScreen extends StatelessWidget {
 
                     context.read<AccountGroupBloc>().add(AccountGroupEvent.started());
                   },
-                  trailing: ReorderableDragStartListener(index: index, child: Icon(Icons.drag_handle)),
+                  trailing: ReorderableDragStartListener(
+                    index: index,
+                    child: Platform.isAndroid ? Icon(Icons.drag_handle) : SizedBox.shrink(),
+                  ),
                 );
               },
               itemCount: accountGroups.length,

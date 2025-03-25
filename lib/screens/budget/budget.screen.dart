@@ -15,7 +15,7 @@ class BudgetScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => BudgetBloc(context.read<BudgetLogic>())..add(BudgetEvent.started()),
       child: Scaffold(
-        appBar: AppBar(title: Text("Budgets")),
+        appBar: AppBar(title: Text("Monthly Budgets")),
         body: BlocBuilder<BudgetBloc, BudgetState>(
           buildWhen: (previous, current) => previous.budgets != current.budgets,
           builder: (context, state) {
@@ -91,7 +91,6 @@ class BudgetScreen extends StatelessWidget {
 
                     context.read<BudgetBloc>().add(BudgetEvent.started());
                   },
-                  trailing: ReorderableDragStartListener(index: index, child: Icon(Icons.drag_handle)),
                 );
               },
               itemCount: budgets.length,
