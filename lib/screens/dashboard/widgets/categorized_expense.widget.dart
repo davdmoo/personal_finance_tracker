@@ -14,78 +14,85 @@ class CategorizedExpenseWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardBloc, DashboardState>(
-      buildWhen: (previous, current) => previous.categorizedExpenses != current.categorizedExpenses,
-      builder: (context, state) {
-        final categorizedExpenses = state.categorizedExpenses;
+    return Column(
+      children: [
+        ChartHeaderWidget(),
+        Expanded(
+          child: BlocBuilder<DashboardBloc, DashboardState>(
+            buildWhen: (previous, current) => previous.categorizedExpenses != current.categorizedExpenses,
+            builder: (context, state) {
+              final categorizedExpenses = state.categorizedExpenses;
 
-        if (categorizedExpenses.isEmpty) {
-          return SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Your transaction is empty.", style: TextStyle(fontSize: 16)),
-                TextButton(
-                  child: Text("Add a transaction here"),
-                  onPressed: () async {
-                    final result = await TransactionFormRoute(tab: TransactionFormTab.expense).push<Object>(context);
-                    if (result == null || !context.mounted) return;
+              if (categorizedExpenses.isEmpty) {
+                return SizedBox(
+                  width: double.maxFinite,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Your transaction is empty.", style: TextStyle(fontSize: 16)),
+                      TextButton(
+                        child: Text("Add a transaction here"),
+                        onPressed: () async {
+                          final result =
+                              await TransactionFormRoute(tab: TransactionFormTab.expense).push<Object>(context);
+                          if (result == null || !context.mounted) return;
 
-                    if (result is Expense || result is Transfer || result is Income) {
-                      context.read<DashboardBloc>().add(DashboardEvent.started());
-                    }
-                  },
-                ),
-              ],
-            ),
-          );
-        }
+                          if (result is Expense || result is Transfer || result is Income) {
+                            context.read<DashboardBloc>().add(DashboardEvent.started());
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }
 
-        final chartSectionData = categorizedExpenses.map((el) {
-          final percentage = el.getPercentage(state.totalExpense);
+              final chartSectionData = categorizedExpenses.map((el) {
+                final percentage = el.getPercentage(state.totalExpense);
 
-          return PieChartSectionData(
-            title: percentage,
-            value: el.totalAmount,
-            radius: 80,
-            titleStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
-          );
-        }).toList();
+                return PieChartSectionData(
+                  title: percentage,
+                  value: el.totalAmount,
+                  radius: 80,
+                  titleStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+                );
+              }).toList();
 
-        return Column(
-          children: [
-            ChartHeaderWidget(),
-            Container(
-              height: 200,
-              padding: EdgeInsets.all(8),
-              child: PieChart(
-                PieChartData(
-                  sections: chartSectionData,
-                  centerSpaceRadius: 0,
-                  borderData: FlBorderData(show: false),
-                ),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: categorizedExpenses.length,
-                itemBuilder: (context, index) {
-                  final item = categorizedExpenses[index];
-                  final percentage = item.getPercentage(state.totalExpense);
+              return Column(
+                children: [
+                  Container(
+                    height: 200,
+                    padding: EdgeInsets.all(8),
+                    child: PieChart(
+                      PieChartData(
+                        sections: chartSectionData,
+                        centerSpaceRadius: 0,
+                        borderData: FlBorderData(show: false),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: categorizedExpenses.length,
+                      itemBuilder: (context, index) {
+                        final item = categorizedExpenses[index];
+                        final percentage = item.getPercentage(state.totalExpense);
 
-                  return ListTile(
-                    title: Text(item.expenseCategory.name),
-                    leading: Text(percentage),
-                    trailing: Text(item.totalAmount.currency),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
+                        return ListTile(
+                          title: Text(item.expenseCategory.name),
+                          leading: Text(percentage),
+                          trailing: Text(item.totalAmount.currency),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

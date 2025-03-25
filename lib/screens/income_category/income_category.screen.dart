@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -43,7 +45,10 @@ class IncomeCategoryScreen extends StatelessWidget {
 
                       context.read<IncomeCategoryListBloc>().add(IncomeCategoryListEvent.started());
                     },
-                    trailing: ReorderableDragStartListener(index: index, child: Icon(Icons.drag_handle)),
+                    trailing: ReorderableDragStartListener(
+                      index: index,
+                      child: Platform.isAndroid ? Icon(Icons.drag_handle) : SizedBox.shrink(),
+                    ),
                   );
                 },
                 onReorder: (int oldIndex, int newIndex) {

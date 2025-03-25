@@ -87,7 +87,8 @@ class BackupScreen extends StatelessWidget {
                           final lastBackupDate = state.lastBackupDate;
 
                           return ListTile(
-                            title: Text("Last backup: ${lastBackupDate?.dateLocaleId ?? '-'}"),
+                            title: Text("Backup data"),
+                            subtitle: Text("Last backup: ${lastBackupDate?.dateLocaleId ?? '-'}"),
                             onTap: () async {
                               final directory = await FilePicker.platform.getDirectoryPath();
                               if (directory == null || !context.mounted) return;
